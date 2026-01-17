@@ -9,7 +9,7 @@ function Cards() {
             <div>
               <div class="flex justify-center mb-4  rounded-full bg-primary-100 dark:bg-primary-900">
                 <svg
-                  class="w-14 h-14 text-green-500 lg:w-14 lg:h-14 dark:text-primary-300"
+                  class="w-14 h-14 text-emerald-600 lg:w-14 lg:h-14 dark:text-primary-300"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                   xmlns="http://www.w3.org/2000/svg"
@@ -31,7 +31,7 @@ function Cards() {
             </div>
             <div>
               <div class="flex justify-center mb-4  rounded-full bg-primary-100 dark:bg-primary-900">
-              <svg class="w-14 h-14 text-green-500 lg:w-14 lg:h-14 dark:text-primary-300" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"></path></svg>
+              <svg class="w-14 h-14 text-emerald-600 lg:w-14 lg:h-14 dark:text-primary-300" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"></path></svg>
               </div>
               <h3 class="mb-2 text-xl font-bold dark:text-white">Vision</h3>
               <p class="text-gray-500 dark:text-gray-400">
@@ -41,7 +41,7 @@ function Cards() {
             </div>
             <div>
               <div class="flex justify-center mb-4  rounded-full bg-primary-100 dark:bg-primary-900">
-              <svg class="w-14 h-14 text-green-500 lg:w-14 lg:h-14 dark:text-primary-300" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M3 6a3 3 0 013-3h10a1 1 0 01.8 1.6L14.25 8l2.55 3.4A1 1 0 0116 13H6a1 1 0 00-1 1v3a1 1 0 11-2 0V6z" clip-rule="evenodd"></path></svg>
+              <svg class="w-14 h-14 text-emerald-600 lg:w-14 lg:h-14 dark:text-primary-300" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M3 6a3 3 0 013-3h10a1 1 0 01.8 1.6L14.25 8l2.55 3.4A1 1 0 0116 13H6a1 1 0 00-1 1v3a1 1 0 11-2 0V6z" clip-rule="evenodd"></path></svg>
               </div>
               <h3 class="mb-2 text-xl font-bold dark:text-white">Goal</h3>
               <p class="text-gray-500 dark:text-gray-400">

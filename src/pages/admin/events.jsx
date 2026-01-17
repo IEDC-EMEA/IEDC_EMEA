@@ -1070,7 +1070,7 @@ function Events() {
                                     <Button
                                         type="submit"
                                         disabled={isSubmitting}
-                                        className="bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white px-6 py-2 rounded-md transition-colors flex items-center gap-2"
+                                        className="bg-emerald-700 hover:bg-green-700 disabled:bg-green-400 text-white px-6 py-2 rounded-md transition-colors flex items-center gap-2"
                                     >
                                         {isSubmitting
                                             ? (editingEvent ? 'Updating...' : 'Creating...')

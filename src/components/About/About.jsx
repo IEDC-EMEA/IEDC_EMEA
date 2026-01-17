@@ -3,7 +3,7 @@ import React from "react";
 function About() {
   return (
     <div className="px-6 mt-8 md:px-20 xl:px-44" id="about">
-      <h2 className="mb-4 text-center text-2xl text-green-500 font-extrabold  md:text-5xl xl:text-3xl">
+      <h2 className="mb-4 text-center text-2xl text-emerald-600 font-extrabold  md:text-5xl xl:text-3xl">
         Innovation and Entrepreneurship Development Centres (IEDC)
       </h2>
       <p className="text-gray-500 dark:text-gray-400">

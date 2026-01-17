@@ -17,7 +17,7 @@ function Join() {
             href="https://wa.me/918089465673"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-green-600 underline hover:text-green-800"
+            className="text-emerald-700 underline hover:text-green-800"
           >
             WhatsApp us
           </a>

@@ -157,7 +157,7 @@ function Interns() {
                     </div>
                     <div className="bg-white rounded-lg shadow-sm p-6 border">
                         <h3 className="text-sm font-medium text-gray-500 mb-2">Active Interns</h3>
-                        <p className="text-3xl font-bold text-green-600">
+                        <p className="text-3xl font-bold text-emerald-700">
                             {internsData.filter(intern => intern.status === 'Active').length}
                         </p>
                     </div>

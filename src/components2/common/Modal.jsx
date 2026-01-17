@@ -12,7 +12,7 @@ const STATUS_COLORS = {
     success: {
         background: "bg-green-100",
         text: "text-green-800",
-        button: "bg-green-500 hover:bg-green-600",
+        button: "bg-emerald-600 hover:bg-emerald-700",
     },
     error: {
         background: "bg-red-100",
@@ -41,7 +41,7 @@ const StatusModal = ({ open, onClose, status, title, description, formType }) =>
                                         href="https://chat.whatsapp.com/LS0zdE9jUf9CiPBZZ7W5p0" 
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="inline-block mt-2 px-4 py-2 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600"
+                                        className="inline-block mt-2 px-4 py-2 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700"
                                     >
                                         Join Our WhatsApp Community
                                     </a>
