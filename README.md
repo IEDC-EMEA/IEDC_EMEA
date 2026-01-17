@@ -1,4 +1,4 @@
-# Connect Community
+# IEDCEMEA Community
 
 ## IEDCEMEA Webpage
 
