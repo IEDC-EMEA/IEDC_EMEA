@@ -1,9 +1,14 @@
-import React, { useEffect, useState } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import React, { useEffect, 
+  // useState 
+} from "react";
+import { Navigate,
+  //  useNavigate 
+
+} from "react-router-dom";
 // import { auth } from "@/config/firebase";
-import { onAuthStateChanged, signOut } from "firebase/auth";
+// import { onAuthStateChanged, signOut } from "firebase/auth";
 // import { toast } from "sonner";
-import { Loader } from "lucide-react";
+// import { Loader } from "lucide-react";
 
 interface AuthRoleRequireProps {
   role: "admin" | "user";
