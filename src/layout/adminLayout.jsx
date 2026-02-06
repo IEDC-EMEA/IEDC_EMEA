@@ -97,9 +97,9 @@ function AdminLayout() {
       route: "/dashboard",
     },
     {
-      name: "Interns",
+      name: "Teams",
       icon: <Users className="h-5 w-5" />,
-      route: "/dashboard/interns",
+      route: "/dashboard/teams",
     },
     {
       name: "Events",
@@ -107,14 +107,19 @@ function AdminLayout() {
       route: "/dashboard/events",
     },
     {
-      name: "Form Data",
+      name: "Reports",
       icon: <Users className="h-5 w-5" />,
-      route: "/dashboard/responses",
+      route: "/dashboard/reports",
     },
     {
-      name: "Queries",
+      name: "Fund Transactions",
       icon: <Users className="h-5 w-5" />,
-      route: "/dashboard/queries",
+      route: "/dashboard/transactions",
+    },
+    {
+      name: "Entrepreneurs",
+      icon: <Users className="h-5 w-5" />,
+      route: "/dashboard/entrepreneurs",
     }
   ];
 
@@ -141,7 +146,7 @@ function AdminLayout() {
   };
 
   return (
-    <AuthRoleRequire role="admin">
+    <AuthRoleRequire >
       <div className="flex h-screen w-full overflow-hidden bg-gray-50">
         {/* Desktop Sidebar */}
         <motion.aside

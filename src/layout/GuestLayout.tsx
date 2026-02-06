@@ -1,13 +1,13 @@
 import { Outlet, useLocation } from "react-router-dom";
-import NavBar from "@/components2/layout/NavBar";
-import Footer from "@/components2/layout/Footer";
+import NavBar from "@/components/NavBar/NavBar";
+import Footer from "@/components/Footer/Footer";
 import { motion } from "motion/react";
 
 function GuestLayout() {
   const location = useLocation();
 
   return (
-    <div className="relative flex flex-col w-full min-h-screen">
+    <div className="relative flex flex-col w-full min-h-screen bg-[#F4F4F2] ">
       {/* NavBar fade + slide down */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
@@ -23,7 +23,7 @@ function GuestLayout() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="flex-grow mt-20 sm:mt-28"
+        className="flex-grow mt-[130px] sm:mt-[152px] bg-[#F4F4F2]  "
       >
         <Outlet />
       </motion.main>

@@ -1,79 +1,130 @@
-import React from "react";
-import logo from "../../assets/logo.svg";
+import React, { useState } from "react";
+import logo from "@/assets/logo/lineLogo.svg";
 import { HashLink as Link } from "react-router-hash-link";
 
 function NavBar() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  
+  const navItems = [
+    { name: "Home", to: "/" },
+    { name: "About", to: "/#about" },
+    { name: "Activities", to: "events" },
+    { name: "Reports", to: "reports" },
+    { name: "EMEA", to: "https://www.emeacollege.ac.in/" },
+  ];
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
+  const closeMenu = () => {
+    setIsMenuOpen(false);
+  };
+
   return (
-    <div>
-      <nav class="bg-white border-gray-200 px-4 lg:px-28 py-2.5 rounded dark:bg-gray-900">
-        <div class="container flex flex-wrap items-center justify-between mx-auto">
-          <Link href="#" class="flex items-center">
-            <img src={logo} class="h-12 mr-3 sm:h-14" alt="Flowbite Logo" />
-            {/* <span class="self-center text-xl font-semibold whitespace-nowrap dark:text-white">Flowbite</span> */}
+    <div className="fixed w-full top-10 z-50 px-3 sm:px-6 md:px-8">
+      <nav className="bg-white shadow-md border border-gray-200 px-4 sm:px-6 lg:px-8 py-2.5 rounded-full max-w-[1400px] mx-auto">
+        <div className="flex items-center justify-between">
+          {/* Logo */}
+          <Link to="#" className="flex items-center" onClick={closeMenu}>
+            <img 
+              src={logo} 
+              className="h-10 sm:h-12 md:h-14 w-auto" 
+              alt="IEDC EMEA Logo" 
+            />
           </Link>
+
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-6 lg:space-x-8">
+            {navItems.map((item, index) => (
+              item.to.startsWith("http") ? (
+                <a
+                  key={index}
+                  href={item.to}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-700 hover:text-emerald-600 font-medium transition-colors duration-200 px-2 py-1"
+                >
+                  {item.name}
+                </a>
+              ) : (
+                <Link
+                  key={index}
+                  smooth
+                  to={item.to}
+                  className="text-gray-700 hover:text-emerald-600 font-medium transition-colors duration-200 px-2 py-1"
+                >
+                  {item.name}
+                </Link>
+              )
+            ))}
+          </div>
+
+          {/* Mobile Menu Button */}
           <button
-            data-collapse-toggle="navbar-default"
+            onClick={toggleMenu}
             type="button"
-            class="inline-flex items-center p-2 ml-3 text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
-            aria-controls="navbar-default"
-            aria-expanded="false"
+            className="md:hidden p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+            aria-controls="mobile-menu"
+            aria-expanded={isMenuOpen}
           >
-            <span class="sr-only">Open main menu</span>
+            <span className="sr-only">Open main menu</span>
             <svg
-              class="w-6 h-6"
+              className="w-6 h-6"
               aria-hidden="true"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-              <path
-                fill-rule="evenodd"
-                d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                clip-rule="evenodd"
-              ></path>
+              {isMenuOpen ? (
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              ) : (
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              )}
             </svg>
           </button>
-          <div class="hidden w-full md:block md:w-auto" id="navbar-default">
-            <ul class="flex flex-col p-4 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 md:mt-0 md:text-sm md:font-medium md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
-              <li>
-                <Link
-                  to="#"
-                  class="block py-2 pl-3 pr-4 text-white bg-emerald-600 rounded md:bg-transparent md:text-emerald-600 md:p-0 dark:text-white"
-                  aria-current="page"
-                >
-                  Home
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="#about"
-                  class="block py-2 pl-3 pr-4 text-gray-700 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-emerald-600 md:p-0 dark:text-gray-400 md:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
-                  smooth
-                >
-                  About
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="#faculty"
-                  class="block py-2 pl-3 pr-4 text-gray-700 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-emerald-600 md:p-0 dark:text-gray-400 md:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
-                  smooth
-                >
-                  Faculty
-                </Link>
-              </li>
-              {/* <li>
-          <Link to="#contact" class="block py-2 pl-3 pr-4 text-gray-700 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-emerald-600 md:p-0 dark:text-gray-400 md:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Contact us</Link>
-        </li> */}
-              <li>
-                <a
-                  href="https://www.emeacollege.ac.in/"
-                  class="block py-2 pl-3 pr-4 text-gray-700 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-emerald-600 md:p-0 dark:text-gray-400 md:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
-                >
-                  EMEA
-                </a>
-              </li>
-            </ul>
+        </div>
+
+        {/* Mobile Navigation Menu */}
+        <div 
+          className={`${isMenuOpen ? 'block' : 'hidden'} md:hidden mt-4 transition-all duration-300 ease-in-out`}
+          id="mobile-menu"
+        >
+          <div className="py-3 space-y-1 border-t border-gray-200">
+            {navItems.map((item, index) => (
+              <div key={index} className="px-2">
+                {item.to.startsWith("http") ? (
+                  <a
+                    href={item.to}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block px-4 py-3 text-gray-700 hover:text-emerald-600 hover:bg-gray-50 rounded-lg font-medium transition-colors duration-200"
+                    onClick={closeMenu}
+                  >
+                    {item.name}
+                  </a>
+                ) : (
+                  <Link
+                    smooth
+                    to={item.to}
+                    className="block px-4 py-3 text-gray-700 hover:text-emerald-600 hover:bg-gray-50 rounded-lg font-medium transition-colors duration-200"
+                    onClick={closeMenu}
+                  >
+                    {item.name}
+                  </Link>
+                )}
+              </div>
+            ))}
           </div>
         </div>
       </nav>

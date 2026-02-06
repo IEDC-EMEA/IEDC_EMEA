@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Clock, MapPin, User, Plus, Trash2, Image as ImageIcon, FileText, Target, Edit, X, Eye, EyeOff, Link, CheckCircle, XCircle } from 'lucide-react';
-import { addDoc, collection, getDocs, doc, deleteDoc, updateDoc } from 'firebase/firestore';
-// import { db } from '../../config/firebase';
-import handleImageUpload from '../../components2/uploadimage';
+import { Calendar, Clock, MapPin, Plus, Trash2, Image as ImageIcon, Edit, X, Eye, EyeOff, Link, CheckCircle, XCircle, Globe, Building, Smartphone } from 'lucide-react';
+import { supabase } from '@/lib/createClient';
+import { toast } from 'sonner';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -12,7 +11,6 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
-    AlertDialogTrigger,
 } from "@/components2/ui/alert-dialog"
 import { Label } from "@/components2/ui/label"
 import {
@@ -23,7 +21,6 @@ import {
     SheetFooter,
     SheetHeader,
     SheetTitle,
-    SheetTrigger,
 } from "@/components2/ui/sheet"
 import { Button } from "@/components2/ui/button"
 import { Input } from "@/components2/ui/input"
@@ -36,7 +33,6 @@ import {
     SelectValue,
 } from "@/components2/ui/select"
 import { Badge } from "@/components2/ui/badge"
-import { set } from 'react-hook-form';
 import ImagePreview from '../../components2/ImagePreview';
 
 function Events() {
@@ -45,10 +41,8 @@ function Events() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [editingEvent, setEditingEvent] = useState(null);
     const [thumbnail_img, setThumbnail_Img] = useState(null);
-    const [images, setImages] = useState([]);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [statusDialogOpen, setStatusDialogOpen] = useState(false);
-    const [regStatusDialogOpen, setRegStatusDialogOpen] = useState(false);
     const [eventToAction, setEventToAction] = useState(null);
     const [actionType, setActionType] = useState('');
     const [viewEvent, setViewEvent] = useState(null);
@@ -56,76 +50,111 @@ function Events() {
     const [loading, setLoading] = useState(false);
 
     const [formData, setFormData] = useState({
-        title: '',
-        date: '',
-        time: '',
-        location: '',
+        name: '',
         description: '',
-        big_description: '',
-        objectives: '',
-        thumbnail: null,
-        gallery: [],
-        link: '',
-        type: '',
-        coordinator_name: '',
-        coordinator_whatsapp: '',
-        status: 'draft',
-        reg_status: 'open',
-        highlights: []
+        venue: '',
+        start_at: '',
+        end_at: '',
+        registration_link: '',
+        type: 'online', // online, offline, both
+        status: 'draft', // draft, published, cancelled
+        image_url: null
     });
 
     const initialFormData = {
-        title: '',
-        date: '',
-        time: '',
-        location: '',
+        name: '',
         description: '',
-        big_description: '',
-        objectives: '',
-        thumbnail: null,
-        gallery: [],
-        link: '',
-        type: '',
-        coordinator_name: '',
-        coordinator_whatsapp: '',
+        venue: '',
+        start_at: '',
+        end_at: '',
+        registration_link: '',
+        type: 'online',
         status: 'draft',
-        reg_status: 'open',
-        highlights: []
+        image_url: null
     };
 
-    const [highlightInput, setHighlightInput] = useState('');
+    // Event types
+    const eventTypes = [
+        { value: 'online', label: 'Online', icon: Globe },
+        { value: 'offline', label: 'Offline', icon: Building },
+        { value: 'both', label: 'Hybrid', icon: Smartphone }
+    ];
 
-    // Event types for the select box
-    const eventTypes = ['Bootcamp', 'Hackathon', 'Talk Session', 'Workshop', 'Conference', 'Webinar', 'Networking', 'Other'];
     const statusOptions = [
-        { value: 'draft', label: 'Draft' },
-        { value: 'published', label: 'Published' },
-        { value: 'archived', label: 'Archived' }
-    ];
-    const regStatusOptions = [
-        { value: 'open', label: 'Open' },
-        { value: 'closed', label: 'Closed' }
+        { value: 'draft', label: 'Draft', color: 'bg-yellow-100 text-yellow-800' },
+        { value: 'published', label: 'Published', color: 'bg-green-100 text-green-800' },
+        { value: 'cancelled', label: 'Cancelled', color: 'bg-red-100 text-red-800' }
     ];
 
-    // Fetch events from Firebase
+    // Helper function to upload image to Supabase Storage
+    const uploadImageToSupabase = async (file) => {
+        try {
+            // Create a unique filename
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+            const filePath = `events/${fileName}`;
+            
+            // Upload to 'portfolio' bucket in 'events' folder
+            const { data, error } = await supabase.storage
+                .from('portfolio')
+                .upload(filePath, file, {
+                    cacheControl: '3600',
+                    upsert: false
+                });
+
+            if (error) throw error;
+
+            // Get public URL
+            const { data: { publicUrl } } = supabase.storage
+                .from('portfolio')
+                .getPublicUrl(filePath);
+
+            return publicUrl;
+        } catch (error) {
+            console.error('Error uploading image:', error);
+            throw new Error('Failed to upload image');
+        }
+    };
+
+    // Helper function to delete image from Supabase Storage
+    const deleteImageFromSupabase = async (url) => {
+        try {
+            if (!url) return;
+            
+            // Extract file path from URL
+            const urlParts = url.split('/');
+            const filePath = urlParts.slice(urlParts.indexOf('events')).join('/');
+            
+            const { error } = await supabase.storage
+                .from('portfolio')
+                .remove([filePath]);
+
+            if (error) {
+                console.error('Error deleting image:', error);
+            }
+        } catch (error) {
+            console.error('Error deleting image:', error);
+        }
+    };
+
+    // Fetch events from Supabase
     const fetchEvents = async () => {
-        setLoading(false);
-        alert('Firebase is disabled');
-        // try {
-        //     const querySnapshot = await getDocs(collection(db, "events"));
-        //     const eventsData = [];
-        //     querySnapshot.forEach((doc) => {
-        //         eventsData.push({ id: doc.id, ...doc.data() });
-        //     });
-        //     // Sort events by date (newest first)
-        //     eventsData.sort((a, b) => new Date(b.date) - new Date(a.date));
-        //     setEvents(eventsData);
-        //     // console.log(eventsData)
-        // } catch (error) {
-        //     console.error("Error fetching events: ", error);
-        // } finally {
-        //     setLoading(false);
-        // }
+        setLoading(true);
+        try {
+            const { data, error } = await supabase
+                .from('events')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) throw error;
+
+            setEvents(data || []);
+        } catch (error) {
+            console.error("Error fetching events: ", error);
+            toast.error("Failed to load events");
+        } finally {
+            setLoading(false);
+        }
     };
 
     useEffect(() => {
@@ -135,27 +164,18 @@ function Events() {
     // Set form data when editing an event
     useEffect(() => {
         if (editingEvent) {
-            // console.log('Editing event:', editingEvent);
             setFormData({
-                title: editingEvent.title || '',
-                date: editingEvent.date || '',
-                time: editingEvent.time || '',
-                location: editingEvent.location || '',
+                name: editingEvent.name || '',
                 description: editingEvent.description || '',
-                big_description: editingEvent.big_description || '',
-                objectives: editingEvent.objectives || '',
-                thumbnail: editingEvent.thumbnail || null,
-                gallery: editingEvent.gallery || [],
-                link: editingEvent.link || '',
-                type: editingEvent.type || '',
-                coordinator_name: editingEvent.coordinator_name || '',
-                coordinator_whatsapp: editingEvent.coordinator_whatsapp || '',
+                venue: editingEvent.venue || '',
+                start_at: editingEvent.start_at ? new Date(editingEvent.start_at).toISOString().slice(0, 16) : '',
+                end_at: editingEvent.end_at ? new Date(editingEvent.end_at).toISOString().slice(0, 16) : '',
+                registration_link: editingEvent.registration_link || '',
+                type: editingEvent.type || 'online',
                 status: editingEvent.status || 'draft',
-                reg_status: editingEvent.reg_status || 'open',
-                highlights: editingEvent.highlights || []
+                image_url: editingEvent.image_url || null
             });
             setThumbnail_Img(null);
-            setImages([]);
             setActiveTab("add");
         }
     }, [editingEvent]);
@@ -171,56 +191,20 @@ function Events() {
     const handleFileChange = async (e) => {
         const file = e.target.files[0];
         if (file) {
-            // Check file size (max 2MB)
             if (file.size > 2 * 1024 * 1024) {
                 alert('File size must be less than 2MB');
                 return;
             }
             setThumbnail_Img(file);
 
-            // Preview the file
             const reader = new FileReader();
             reader.onload = (e) => {
                 setFormData({
                     ...formData,
-                    thumbnail: e.target.result
+                    image_url: e.target.result
                 });
             };
             reader.readAsDataURL(file);
-        }
-    };
-
-    const handleFileChange2 = (e) => {
-        const files = Array.from(e.target.files);
-        if (files.length > 0) {
-            const currentCount = formData.gallery.length;
-            const newCount = currentCount + files.length;
-
-            if (newCount > 2) {
-                alert(`Maximum 2 images allowed. You already have ${currentCount} images.`);
-                return;
-            }
-
-            for (const file of files) {
-                if (file.size > 2 * 1024 * 1024) {
-                    alert(`File ${file.name} exceeds 2MB size limit`);
-                    return;
-                }
-            }
-
-            setImages((prev) => [...prev, ...files]);
-
-            // Push base64 previews directly into formData.gallery
-            files.forEach((file) => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    setFormData((prev) => ({
-                        ...prev,
-                        gallery: [...prev.gallery, e.target.result],
-                    }));
-                };
-                reader.readAsDataURL(file);
-            });
         }
     };
 
@@ -228,106 +212,116 @@ function Events() {
         setThumbnail_Img(null);
         setFormData({
             ...formData,
-            thumbnail: null
-        });
-    };
-
-    const removeGalleryImage = (index) => {
-        setFormData((prev) => {
-            const newGallery = [...prev.gallery];
-            newGallery.splice(index, 1);
-            return { ...prev, gallery: newGallery };
-        });
-        setImages((prev) => prev.filter((_, i) => i !== index));
-    };
-
-
-    const addHighlight = () => {
-        if (highlightInput.trim()) {
-            setFormData({
-                ...formData,
-                highlights: [...formData.highlights, highlightInput.trim()]
-            });
-            setHighlightInput('');
-        }
-    };
-
-    const removeHighlight = (index) => {
-        const newHighlights = [...formData.highlights];
-        newHighlights.splice(index, 1);
-        setFormData({
-            ...formData,
-            highlights: newHighlights
+            image_url: null
         });
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setIsSubmitting(false);
-        alert('Firebase is disabled');
+        setIsSubmitting(true);
 
-        // try {
-        //     let thumbnailUrl = formData.thumbnail;
-        //     if (thumbnail_img) {
-        //         thumbnailUrl = await handleImageUpload(thumbnail_img);
-        //     }
+        try {
+            // Upload thumbnail image if new
+            let image_url = formData.image_url;
+            if (thumbnail_img) {
+                image_url = await uploadImageToSupabase(thumbnail_img);
+            }
 
-        //     // Upload only `images` (new files)
-        //     const newGalleryUrls = [];
-        //     for (const image of images) {
-        //         const url = await handleImageUpload(image);
-        //         if (url) newGalleryUrls.push(url);
-        //     }
+            // Prepare event data
+            const eventData = {
+                name: formData.name,
+                description: formData.description,
+                venue: formData.venue,
+                start_at: formData.start_at ? new Date(formData.start_at).toISOString() : null,
+                end_at: formData.end_at ? new Date(formData.end_at).toISOString() : null,
+                registration_link: formData.registration_link,
+                type: formData.type,
+                status: formData.status,
+                image_url: image_url
+            };
 
-        //     // Final gallery = replace previews with real URLs
-        //     const galleryUrls = formData.gallery.map((item) =>
-        //         item.startsWith("data:image/") ? newGalleryUrls.shift() : item
-        //     );
+            if (editingEvent) {
+                // Delete old image if it was replaced
+                if (thumbnail_img && editingEvent.image_url) {
+                    await deleteImageFromSupabase(editingEvent.image_url);
+                }
 
-        //     const eventData = {
-        //         ...formData,
-        //         thumbnail: thumbnailUrl,
-        //         gallery: galleryUrls,
-        //         updatedAt: new Date(),
-        //     };
+                const { error } = await supabase
+                    .from('events')
+                    .update({
+                        ...eventData,
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('id', editingEvent.id);
 
-        //     if (editingEvent) {
-        //         await updateDoc(doc(db, "events", editingEvent.id), eventData);
-        //         setEvents((prev) =>
-        //             prev.map((ev) =>
-        //                 ev.id === editingEvent.id ? { ...eventData, id: editingEvent.id } : ev
-        //             )
-        //         );
-        //     } else {
-        //         eventData.createdAt = new Date();
-        //         const docRef = await addDoc(collection(db, "events"), eventData);
-        //         setEvents((prev) => [...prev, { ...eventData, id: docRef.id }]);
-        //     }
+                if (error) throw error;
 
-        //     // Reset
-        //     setFormData({ ...initialFormData }); // define initialFormData as your blank form object
-        //     setThumbnail_Img(null);
-        //     setImages([]);
-        //     setEditingEvent(null);
-        //     setActiveTab("view");
-        // } catch (error) {
-        //     console.error("Error saving event: ", error);
-        // } finally {
-        //     setIsSubmitting(false);
-        // }
+                // Update local state
+                setEvents((prev) =>
+                    prev.map((ev) =>
+                        ev.id === editingEvent.id ? { ...ev, ...eventData } : ev
+                    )
+                );
+                
+                toast.success("Event updated successfully!");
+            } else {
+                const { data, error } = await supabase
+                    .from('events')
+                    .insert([{
+                        ...eventData,
+                        created_at: new Date().toISOString()
+                    }])
+                    .select();
+
+                if (error) throw error;
+
+                if (data && data[0]) {
+                    setEvents((prev) => [data[0], ...prev]);
+                }
+                
+                toast.success("Event created successfully!");
+            }
+
+            // Reset form
+            setFormData({ ...initialFormData });
+            setThumbnail_Img(null);
+            setEditingEvent(null);
+            setActiveTab("view");
+
+        } catch (error) {
+            console.error("Error saving event: ", error);
+            toast.error(error.message || "Failed to save event");
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
-
-
     const handleDelete = async () => {
-        // try {
-        //     await deleteDoc(doc(db, "events", eventToAction.id));
-        //     setDeleteDialogOpen(false);
-        //     fetchEvents(); // Refresh the events list
-        // } catch (error) {
-        //     console.error("Error deleting event: ", error);
-        // }
-        alert('Firebase is disabled');
+        if (!eventToAction) return;
+
+        try {
+            // Delete image from storage
+            if (eventToAction.image_url) {
+                await deleteImageFromSupabase(eventToAction.image_url);
+            }
+
+            // Delete from database
+            const { error } = await supabase
+                .from('events')
+                .delete()
+                .eq('id', eventToAction.id);
+
+            if (error) throw error;
+
+            // Update local state
+            setEvents((prev) => prev.filter((event) => event.id !== eventToAction.id));
+            setDeleteDialogOpen(false);
+            toast.success("Event deleted successfully!");
+
+        } catch (error) {
+            console.error("Error deleting event: ", error);
+            toast.error("Failed to delete event");
+        }
     };
 
     const handleEdit = (event) => {
@@ -335,34 +329,40 @@ function Events() {
     };
 
     const handleStatusUpdate = async () => {
-        // try {
-        //     await updateDoc(doc(db, "events", eventToAction.id), {
-        //         [actionType]: eventToAction.newValue,
-        //         updatedAt: new Date()
-        //     });
+        if (!eventToAction) return;
 
-        //     if (actionType === 'status') {
-        //         setStatusDialogOpen(false);
-        //     } else {
-        //         setRegStatusDialogOpen(false);
-        //     }
+        try {
+            const { error } = await supabase
+                .from('events')
+                .update({
+                    status: eventToAction.newValue,
+                    updated_at: new Date().toISOString()
+                })
+                .eq('id', eventToAction.id);
 
-        //     fetchEvents(); // Refresh the events list
-        // } catch (error) {
-        //     console.error("Error updating event status: ", error);
-        // }
-        alert('Firebase is disabled');
+            if (error) throw error;
+
+            // Update local state
+            setEvents((prev) =>
+                prev.map((event) =>
+                    event.id === eventToAction.id
+                        ? { ...event, status: eventToAction.newValue }
+                        : event
+                )
+            );
+
+            setStatusDialogOpen(false);
+            toast.success("Status updated successfully!");
+
+        } catch (error) {
+            console.error("Error updating event status: ", error);
+            toast.error("Failed to update status");
+        }
     };
 
-    const openStatusDialog = (event, type, newValue) => {
+    const openStatusDialog = (event, newValue) => {
         setEventToAction({ id: event.id, newValue });
-        setActionType(type);
-
-        if (type === 'status') {
-            setStatusDialogOpen(true);
-        } else {
-            setRegStatusDialogOpen(true);
-        }
+        setStatusDialogOpen(true);
     };
 
     const openDeleteDialog = (event) => {
@@ -375,56 +375,54 @@ function Events() {
         setSheetOpen(true);
     };
 
-    const formatDate = (dateString) => {
+    const formatDateTime = (dateString) => {
+        if (!dateString) return 'N/A';
         const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', {
+        return date.toLocaleString('en-US', {
             year: 'numeric',
             month: 'short',
-            day: 'numeric'
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
         });
     };
 
     const cancelEdit = () => {
         setEditingEvent(null);
-        setFormData({
-            title: '',
-            date: '',
-            time: '',
-            location: '',
-            description: '',
-            big_description: '',
-            objectives: '',
-            thumbnail: null,
-            gallery: [],
-            link: '',
-            type: '',
-            coordinator_name: '',
-            coordinator_whatsapp: '',
-            status: 'draft',
-            reg_status: 'open',
-            highlights: []
-        });
+        setFormData({ ...initialFormData });
         setThumbnail_Img(null);
-        setImages([]);
         setActiveTab("view");
     };
 
+    const getTypeIcon = (type) => {
+        const typeObj = eventTypes.find(t => t.value === type);
+        return typeObj ? typeObj.icon : Globe;
+    };
+
+    const getTypeLabel = (type) => {
+        const typeObj = eventTypes.find(t => t.value === type);
+        return typeObj ? typeObj.label : 'Online';
+    };
+
     return (
-        <div className="min-h-screen bg-gray-50 p-6">
+        <div className="min-h-screen bg-gray-50 p-4 md:p-6">
             <div className="max-w-7xl mx-auto">
                 <div className="bg-white rounded-lg shadow-lg overflow-hidden">
                     {/* Header */}
-                    <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                    <div className="px-4 md:px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div className="flex items-center gap-3">
-                            <Calendar className="h-8 w-8 text-blue-600" />
+                            <Calendar className="h-8 w-8 text-emerald-600" />
                             <div>
-                                <h1 className="text-2xl font-bold text-gray-900">Events Manager</h1>
+                                <h1 className="text-xl md:text-2xl font-bold text-gray-900">Events Manager</h1>
                                 <p className="text-sm text-gray-500">Create and manage your events</p>
                             </div>
                         </div>
                         <Button
-                            onClick={() => setActiveTab("add")}
-                            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+                            onClick={() => {
+                                setEditingEvent(null);
+                                setActiveTab("add");
+                            }}
+                            className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
                         >
                             <Plus className="h-4 w-4" />
                             Add Event
@@ -439,18 +437,23 @@ function Events() {
                         </TabsList>
 
                         {/* View Events Tab */}
-                        <TabsContent value="view" className="p-6">
-                            <div className="flex justify-between items-center mb-4">
+                        <TabsContent value="view" className="p-4 md:p-6">
+                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
                                 <h2 className="text-lg font-semibold text-gray-900">
                                     Events ({events.length})
                                 </h2>
                                 <div className="flex items-center gap-2">
                                     <span className="text-sm text-gray-500">Filter:</span>
-                                    <select className="text-sm border border-gray-300 rounded px-2 py-1">
+                                    <select 
+                                        className="text-sm border border-gray-300 rounded px-2 py-1"
+                                        onChange={(e) => {
+                                            // Filter logic can be added here
+                                        }}
+                                    >
                                         <option value="all">All Events</option>
                                         <option value="published">Published</option>
                                         <option value="draft">Draft</option>
-                                        <option value="archived">Archived</option>
+                                        <option value="cancelled">Cancelled</option>
                                     </select>
                                 </div>
                             </div>
@@ -484,259 +487,106 @@ function Events() {
                                                     Status
                                                 </th>
                                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                    Registration
-                                                </th>
-                                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                     Actions
                                                 </th>
                                             </tr>
                                         </thead>
                                         <tbody className="bg-white divide-y divide-gray-200">
-                                            {events.map((event) => (
-                                                <tr key={event.id} className="hover:bg-gray-50">
-                                                    <td className="px-4 py-4">
-                                                        <div className="flex items-center">
-                                                            {event.thumbnail && (
-                                                                <ImagePreview
-                                                                    src={event.thumbnail}
-                                                                    alt={event.title}
-                                                                    size="h-10 w-10 object-cover rounded mr-3"
-                                                                />
-                                                            )}
-                                                            <div>
-                                                                <div className="text-sm font-medium text-gray-900">{event.title}</div>
-                                                                <div className="text-sm text-gray-500">{event.location}</div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="px-4 py-4">
-                                                        <Badge variant="outline" className="bg-blue-100 text-blue-800">
-                                                            {event.type}
-                                                        </Badge>
-                                                    </td>
-                                                    <td className="px-4 py-4">
-                                                        <div className="text-sm text-gray-900">
+                                            {events.map((event) => {
+                                                const TypeIcon = getTypeIcon(event.type);
+                                                return (
+                                                    <tr key={event.id} className="hover:bg-gray-50">
+                                                        <td className="px-4 py-4">
                                                             <div className="flex items-center">
-                                                                <Calendar className="h-4 w-4 text-gray-400 mr-1" />
-                                                                {formatDate(event.date)}
-                                                            </div>
-                                                            <div className="flex items-center mt-1">
-                                                                <Clock className="h-4 w-4 text-gray-400 mr-1" />
-                                                                {event.time}
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="px-4 py-4">
-                                                        <div className="flex items-center">
-                                                            <Badge
-                                                                variant="outline"
-                                                                className={
-                                                                    event.status === 'published' ? 'bg-green-100 text-green-800' :
-                                                                        event.status === 'draft' ? 'bg-yellow-100 text-yellow-800' :
-                                                                            'bg-gray-100 text-gray-800'
-                                                                }
-                                                            >
-                                                                {event.status === 'published' && <Eye className="h-3 w-3 mr-1" />}
-                                                                {event.status === 'draft' && <EyeOff className="h-3 w-3 mr-1" />}
-                                                                {statusOptions.find(s => s.value === event.status)?.label || event.status}
-                                                            </Badge>
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="sm"
-                                                                onClick={() => openStatusDialog(
-                                                                    event,
-                                                                    'status',
-                                                                    event.status === 'published' ? 'draft' : 'published'
+                                                                {event.image_url && (
+                                                                    <ImagePreview
+                                                                        src={event.image_url}
+                                                                        alt={event.name}
+                                                                        size="h-12 w-12 object-cover rounded mr-3"
+                                                                    />
                                                                 )}
-                                                                className="ml-2 text-gray-400 hover:text-gray-600"
-                                                            >
-                                                                {event.status === 'published' ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                                                            </Button>
-                                                        </div>
-                                                    </td>
-                                                    <td className="px-4 py-4">
-                                                        <div className="flex items-center">
-                                                            <Badge
-                                                                variant="outline"
-                                                                className={
-                                                                    event.reg_status === 'open' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                                                                }
-                                                            >
-                                                                {event.reg_status === 'open' ? <CheckCircle className="h-3 w-3 mr-1" /> : <XCircle className="h-3 w-3 mr-1" />}
-                                                                {event.reg_status === 'open' ? 'Open' : 'Closed'}
+                                                                <div>
+                                                                    <div className="text-sm font-medium text-gray-900">{event.name}</div>
+                                                                    <div className="text-sm text-gray-500 truncate max-w-xs">
+                                                                        {event.description?.substring(0, 60)}...
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-4 py-4">
+                                                            <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 flex items-center gap-1">
+                                                                <TypeIcon className="h-3 w-3" />
+                                                                {getTypeLabel(event.type)}
                                                             </Badge>
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="sm"
-                                                                onClick={() => openStatusDialog(
-                                                                    event,
-                                                                    'reg_status',
-                                                                    event.reg_status === 'open' ? 'closed' : 'open'
-                                                                )}
-                                                                className="ml-2 text-gray-400 hover:text-gray-600"
-                                                            >
-                                                                {event.reg_status === 'open' ? <XCircle className="h-4 w-4" /> : <CheckCircle className="h-4 w-4" />}
-                                                            </Button>
-                                                        </div>
-                                                        {event.link && event.reg_status === 'open' && (
-                                                            <a
-                                                                href={event.link}
-                                                                target="_blank"
-                                                                rel="noopener noreferrer"
-                                                                className="mt-1 inline-flex items-center text-xs text-blue-600 hover:text-blue-800"
-                                                            >
-                                                                <Link className="h-3 w-3 mr-1" />
-                                                                Registration Link
-                                                            </a>
-                                                        )}
-                                                    </td>
-                                                    <td className="px-4 py-4 whitespace-nowrap text-sm font-medium">
-                                                        <div className="flex items-center gap-2">
-                                                            <Sheet open={sheetOpen} onOpenChange={setSheetOpen} >
-                                                                <SheetTrigger asChild>
+                                                        </td>
+                                                        <td className="px-4 py-4">
+                                                            <div className="text-sm text-gray-900">
+                                                                <div className="flex items-center">
+                                                                    <Calendar className="h-4 w-4 text-gray-400 mr-1" />
+                                                                    {formatDateTime(event.start_at)}
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-4 py-4">
+                                                            <div className="flex items-center">
+                                                                <Badge
+                                                                    variant="outline"
+                                                                    className={statusOptions.find(s => s.value === event.status)?.color}
+                                                                >
+                                                                    {event.status === 'published' && <Eye className="h-3 w-3 mr-1" />}
+                                                                    {event.status === 'draft' && <EyeOff className="h-3 w-3 mr-1" />}
+                                                                    {event.status === 'cancelled' && <XCircle className="h-3 w-3 mr-1" />}
+                                                                    {statusOptions.find(s => s.value === event.status)?.label || event.status}
+                                                                </Badge>
+                                                                {event.status !== 'cancelled' && (
                                                                     <Button
                                                                         variant="ghost"
                                                                         size="sm"
-                                                                        onClick={() => handleViewEvent(event)}
-                                                                        className="text-blue-600 hover:text-blue-900 flex items-center gap-1"
+                                                                        onClick={() => openStatusDialog(
+                                                                            event,
+                                                                            event.status === 'published' ? 'draft' : 'published'
+                                                                        )}
+                                                                        className="ml-2 text-gray-400 hover:text-gray-600"
                                                                     >
-                                                                        <Eye className="h-4 w-4" />
-                                                                        View
+                                                                        {event.status === 'published' ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                                                                     </Button>
-                                                                </SheetTrigger>
-                                                                <SheetContent side="right" className="w-full sm:max-w-2xl overflow-y-auto">
-                                                                    <SheetHeader>
-                                                                        <SheetTitle>{viewEvent?.title}</SheetTitle>
-                                                                        <SheetDescription>
-                                                                            Event details and information
-                                                                        </SheetDescription>
-                                                                    </SheetHeader>
-                                                                    {viewEvent && (
-                                                                        <div className="grid gap-4 py-4">
-                                                                            {viewEvent.thumbnail && (
-                                                                                <ImagePreview
-                                                                                    src={viewEvent.thumbnail}
-                                                                                    alt={viewEvent.title}
-                                                                                    size="w-full h-48 object-cover rounded-md"
-                                                                                />
-                                                                            )}
-                                                                            <div className="grid grid-cols-2 gap-4">
-                                                                                <div>
-                                                                                    <Label className="text-sm font-medium">Type</Label>
-                                                                                    <p>{viewEvent.type}</p>
-                                                                                </div>
-                                                                                <div>
-                                                                                    <Label className="text-sm font-medium">Date</Label>
-                                                                                    <p>{formatDate(viewEvent.date)}</p>
-                                                                                </div>
-                                                                                <div>
-                                                                                    <Label className="text-sm font-medium">Time</Label>
-                                                                                    <p>{viewEvent.time}</p>
-                                                                                </div>
-                                                                                <div>
-                                                                                    <Label className="text-sm font-medium">Location</Label>
-                                                                                    <p>{viewEvent.location || 'N/A'}</p>
-                                                                                </div>
-                                                                                <div>
-                                                                                    <Label className="text-sm font-medium">Status</Label>
-                                                                                    <p>{statusOptions.find(s => s.value === viewEvent.status)?.label || viewEvent.status}</p>
-                                                                                </div>
-                                                                                <div>
-                                                                                    <Label className="text-sm font-medium">Registration</Label>
-                                                                                    <p>{regStatusOptions.find(s => s.value === viewEvent.reg_status)?.label || viewEvent.reg_status}</p>
-                                                                                </div>
-                                                                            </div>
-                                                                            <div>
-                                                                                <Label className="text-sm font-medium">Description</Label>
-                                                                                <p>{viewEvent.description || 'No description available'}</p>
-                                                                            </div>
-                                                                            <div>
-                                                                                <Label className="text-sm font-medium">Detailed Description</Label>
-                                                                                <p>{viewEvent.big_description || 'No detailed description available'}</p>
-                                                                            </div>
-                                                                            {viewEvent.objectives && (
-                                                                                <div>
-                                                                                    <Label className="text-sm font-medium">Objectives</Label>
-                                                                                    <p>{viewEvent.objectives}</p>
-                                                                                </div>
-                                                                            )}
-                                                                            {viewEvent.highlights && viewEvent.highlights.length > 0 && (
-                                                                                <div>
-                                                                                    <Label className="text-sm font-medium">Highlights</Label>
-                                                                                    <ul className="list-disc pl-5">
-                                                                                        {viewEvent.highlights.map((highlight, index) => (
-                                                                                            <li key={index}>{highlight}</li>
-                                                                                        ))}
-                                                                                    </ul>
-                                                                                </div>
-                                                                            )}
-                                                                            {viewEvent.coordinator_name && (
-                                                                                <div>
-                                                                                    <Label className="text-sm font-medium">Coordinator</Label>
-                                                                                    <p>{viewEvent.coordinator_name}</p>
-                                                                                </div>
-                                                                            )}
-                                                                            {viewEvent.coordinator_whatsapp && (
-                                                                                <div>
-                                                                                    <Label className="text-sm font-medium">Coordinator WhatsApp</Label>
-                                                                                    <p>{viewEvent.coordinator_whatsapp}</p>
-                                                                                </div>
-                                                                            )}
-                                                                            {viewEvent.link && (
-                                                                                <div>
-                                                                                    <Label className="text-sm font-medium">Registration Link</Label>
-                                                                                    <a href={viewEvent.link} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                                                                                        {viewEvent.link}
-                                                                                    </a>
-                                                                                </div>
-                                                                            )}
-                                                                            {viewEvent.gallery && viewEvent.gallery.length > 0 && (
-                                                                                <div>
-                                                                                    <Label className="text-sm font-medium">Gallery</Label>
-                                                                                    <div className="grid grid-cols-2 gap-2 mt-2">
-                                                                                        {viewEvent.gallery.map((image, index) => (
-                                                                                            <ImagePreview
-                                                                                                key={index}
-                                                                                                src={image}
-                                                                                                alt={`Gallery ${index}`}
-                                                                                                size="w-full h-24 object-cover rounded"
-                                                                                                modalSize="max-w-4xl"
-                                                                                            />
-                                                                                        ))}
-                                                                                    </div>
-                                                                                </div>
-                                                                            )}
-                                                                        </div>
-                                                                    )}
-                                                                    <SheetFooter>
-                                                                        <SheetClose asChild>
-                                                                            <Button>Close</Button>
-                                                                        </SheetClose>
-                                                                    </SheetFooter>
-                                                                </SheetContent>
-                                                            </Sheet>
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="sm"
-                                                                onClick={() => handleEdit(event)}
-                                                                className="text-blue-600 hover:text-blue-900 flex items-center gap-1"
-                                                            >
-                                                                <Edit className="h-4 w-4" />
-                                                                Edit
-                                                            </Button>
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="sm"
-                                                                onClick={() => openDeleteDialog(event)}
-                                                                className="text-red-600 hover:text-red-900 flex items-center gap-1"
-                                                            >
-                                                                <Trash2 className="h-4 w-4" />
-                                                                Delete
-                                                            </Button>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            ))}
+                                                                )}
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-4 py-4 whitespace-nowrap text-sm font-medium">
+                                                            <div className="flex items-center gap-2">
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="sm"
+                                                                    onClick={() => handleViewEvent(event)}
+                                                                    className="text-emerald-600 hover:text-emerald-900 flex items-center gap-1"
+                                                                >
+                                                                    <Eye className="h-4 w-4" />
+                                                                    View
+                                                                </Button>
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="sm"
+                                                                    onClick={() => handleEdit(event)}
+                                                                    className="text-blue-600 hover:text-blue-900 flex items-center gap-1"
+                                                                >
+                                                                    <Edit className="h-4 w-4" />
+                                                                    Edit
+                                                                </Button>
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="sm"
+                                                                    onClick={() => openDeleteDialog(event)}
+                                                                    className="text-red-600 hover:text-red-900 flex items-center gap-1"
+                                                                >
+                                                                    <Trash2 className="h-4 w-4" />
+                                                                    Delete
+                                                                </Button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            })}
                                         </tbody>
                                     </table>
                                 </div>
@@ -744,22 +594,22 @@ function Events() {
                         </TabsContent>
 
                         {/* Add/Edit Event Tab */}
-                        <TabsContent value="add" className="p-6">
+                        <TabsContent value="add" className="p-4 md:p-6">
                             <h2 className="text-lg font-semibold text-gray-900 mb-4">
                                 {editingEvent ? 'Edit Event' : 'Create New Event'}
                             </h2>
                             <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-6">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
-                                        <Label htmlFor="title" className="mb-1">
-                                            Event Title *
+                                        <Label htmlFor="name" className="mb-1">
+                                            Event Name *
                                         </Label>
                                         <Input
                                             type="text"
-                                            name="title"
-                                            value={formData.title}
+                                            name="name"
+                                            value={formData.name}
                                             onChange={handleInputChange}
-                                            placeholder="Enter event title"
+                                            placeholder="Enter event name"
                                             required
                                         />
                                     </div>
@@ -768,7 +618,6 @@ function Events() {
                                             Event Type *
                                         </Label>
                                         <Select
-                                            name="type"
                                             value={formData.type}
                                             onValueChange={(value) => setFormData({ ...formData, type: value })}
                                             required
@@ -777,46 +626,67 @@ function Events() {
                                                 <SelectValue placeholder="Select Event Type" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                {eventTypes.map((type, index) => (
-                                                    <SelectItem key={index} value={type}>{type}</SelectItem>
-                                                ))}
+                                                {eventTypes.map((type) => {
+                                                    const Icon = type.icon;
+                                                    return (
+                                                        <SelectItem key={type.value} value={type.value}>
+                                                            <div className="flex items-center gap-2">
+                                                                <Icon className="h-4 w-4" />
+                                                                {type.label}
+                                                            </div>
+                                                        </SelectItem>
+                                                    );
+                                                })}
                                             </SelectContent>
                                         </Select>
                                     </div>
                                     <div>
-                                        <Label htmlFor="date" className="mb-1">
-                                            Date *
+                                        <Label htmlFor="start_at" className="mb-1">
+                                            Start Date & Time *
                                         </Label>
                                         <Input
-                                            type="date"
-                                            name="date"
-                                            value={formData.date}
+                                            type="datetime-local"
+                                            name="start_at"
+                                            value={formData.start_at}
                                             onChange={handleInputChange}
                                             required
                                         />
                                     </div>
                                     <div>
-                                        <Label htmlFor="time" className="mb-1">
-                                            Time *
+                                        <Label htmlFor="end_at" className="mb-1">
+                                            End Date & Time *
                                         </Label>
                                         <Input
-                                            type="time"
-                                            name="time"
-                                            value={formData.time}
+                                            type="datetime-local"
+                                            name="end_at"
+                                            value={formData.end_at}
                                             onChange={handleInputChange}
                                             required
                                         />
                                     </div>
                                     <div>
-                                        <Label htmlFor="location" className="mb-1">
-                                            Location
+                                        <Label htmlFor="venue" className="mb-1">
+                                            Venue *
                                         </Label>
                                         <Input
                                             type="text"
-                                            name="location"
-                                            value={formData.location}
+                                            name="venue"
+                                            value={formData.venue}
                                             onChange={handleInputChange}
-                                            placeholder="Enter location"
+                                            placeholder="Enter venue or online platform"
+                                            required
+                                        />
+                                    </div>
+                                    <div>
+                                        <Label htmlFor="registration_link" className="mb-1">
+                                            Registration Link
+                                        </Label>
+                                        <Input
+                                            type="url"
+                                            name="registration_link"
+                                            value={formData.registration_link}
+                                            onChange={handleInputChange}
+                                            placeholder="https://example.com/register"
                                         />
                                     </div>
                                     <div>
@@ -824,7 +694,6 @@ function Events() {
                                             Status
                                         </Label>
                                         <Select
-                                            name="status"
                                             value={formData.status}
                                             onValueChange={(value) => setFormData({ ...formData, status: value })}
                                         >
@@ -832,245 +701,78 @@ function Events() {
                                                 <SelectValue placeholder="Select Status" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                {statusOptions.map((option, index) => (
-                                                    <SelectItem key={index} value={option.value}>{option.label}</SelectItem>
+                                                {statusOptions.map((option) => (
+                                                    <SelectItem key={option.value} value={option.value}>
+                                                        {option.label}
+                                                    </SelectItem>
                                                 ))}
                                             </SelectContent>
                                         </Select>
-                                    </div>
-                                    <div>
-                                        <Label htmlFor="reg_status" className="mb-1">
-                                            Registration Status
-                                        </Label>
-                                        <Select
-                                            name="reg_status"
-                                            value={formData.reg_status}
-                                            onValueChange={(value) => setFormData({ ...formData, reg_status: value })}
-                                        >
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Select Registration Status" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {regStatusOptions.map((option, index) => (
-                                                    <SelectItem key={index} value={option.value}>{option.label}</SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div>
-                                        <Label htmlFor="coordinator_name" className="mb-1">
-                                            Coordinator Name
-                                        </Label>
-                                        <Input
-                                            type="text"
-                                            name="coordinator_name"
-                                            value={formData.coordinator_name}
-                                            onChange={handleInputChange}
-                                            placeholder="Enter coordinator name"
-                                        />
-                                    </div>
-                                    <div>
-                                        <Label htmlFor="coordinator_whatsapp" className="mb-1">
-                                            Coordinator WhatsApp
-                                        </Label>
-                                        <Input
-                                            type="tel"
-                                            name="coordinator_whatsapp"
-                                            value={formData.coordinator_whatsapp}
-                                            onChange={handleInputChange}
-                                            placeholder="Enter WhatsApp number"
-                                        />
                                     </div>
                                 </div>
 
                                 <div>
                                     <Label htmlFor="description" className="mb-1">
-                                        Short Description
+                                        Description *
                                     </Label>
                                     <textarea
                                         name="description"
                                         value={formData.description}
                                         onChange={handleInputChange}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        placeholder="Brief description of the event"
-                                        rows="2"
-                                    />
-                                </div>
-
-                                <div>
-                                    <Label htmlFor="big_description" className="mb-1">
-                                        Detailed Description
-                                    </Label>
-                                    <textarea
-                                        name="big_description"
-                                        value={formData.big_description}
-                                        onChange={handleInputChange}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        placeholder="Comprehensive description of the event"
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                                        placeholder="Describe your event..."
                                         rows="4"
-                                    />
-                                </div>
-
-                                <div>
-                                    <Label htmlFor="objectives" className="mb-1">
-                                        Objectives
-                                    </Label>
-                                    <textarea
-                                        name="objectives"
-                                        value={formData.objectives}
-                                        onChange={handleInputChange}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        placeholder="What participants will learn/achieve"
-                                        rows="3"
+                                        required
                                     />
                                 </div>
 
                                 <div>
                                     <Label className="mb-1">
-                                        Event Highlights
+                                        Event Poster (Max 2MB)
                                     </Label>
-                                    <div className="flex gap-2 mb-2">
+                                    <div className="flex items-center gap-2 mb-2">
                                         <Input
-                                            type="text"
-                                            value={highlightInput}
-                                            onChange={(e) => setHighlightInput(e.target.value)}
-                                            placeholder="Add a highlight point"
+                                            type="file"
+                                            onChange={handleFileChange}
+                                            className="hidden"
+                                            id="image-upload"
+                                            accept="image/*"
                                         />
-                                        <Button
-                                            type="button"
-                                            onClick={addHighlight}
-                                            variant="outline"
+                                        <Label
+                                            htmlFor="image-upload"
+                                            className="cursor-pointer bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-md flex items-center gap-2 transition-colors"
                                         >
-                                            Add
-                                        </Button>
-                                    </div>
-                                    <ul className="space-y-1">
-                                        {formData.highlights.map((highlight, index) => (
-                                            <li key={index} className="flex items-center justify-between bg-gray-100 px-3 py-2 rounded">
-                                                <span>{highlight}</span>
-                                                <Button
-                                                    type="button"
-                                                    onClick={() => removeHighlight(index)}
-                                                    variant="ghost"
-                                                    size="sm"
-                                                >
-                                                    <Trash2 className="h-4 w-4" />
-                                                </Button>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <Label className="mb-1">
-                                            Thumbnail Image (Max 2MB)
+                                            <ImageIcon className="h-4 w-4" />
+                                            Upload Poster
                                         </Label>
-                                        <div className="flex items-center gap-2 mb-2">
-                                            <Input
-                                                type="file"
-                                                name="thumbnail"
-                                                onChange={handleFileChange}
-                                                className="hidden"
-                                                id="thumbnail-upload"
-                                                accept="image/*"
-                                            />
-                                            <Label
-                                                htmlFor="thumbnail-upload"
-                                                className="cursor-pointer bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded-md flex items-center gap-2"
-                                            >
-                                                <ImageIcon className="h-4 w-4" />
-                                                Upload Thumbnail
-                                            </Label>
-                                        </div>
-                                        {formData.thumbnail && (
-                                            <div className="relative inline-block mt-2">
-                                                <ImagePreview
-                                                    src={formData.thumbnail}
-                                                    alt="Thumbnail preview"
-                                                    size="h-20 w-20 object-cover rounded"
-                                                />
-                                                <Button
-                                                    type="button"
-                                                    onClick={removeThumbnail}
-                                                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 h-6 w-6"
-                                                    size="icon"
-                                                >
-                                                    <X className="h-4 w-4" />
-                                                </Button>
-                                            </div>
-                                        )}
+                                        <span className="text-sm text-gray-500">
+                                            {thumbnail_img ? thumbnail_img.name : 'No file selected'}
+                                        </span>
                                     </div>
-                                    <div>
-                                        <Label className="mb-1">
-                                            Gallery Images (Max 2 images, 2MB each)
-                                            <span className="text-xs text-gray-500 ml-1">
-                                                {formData.gallery.length}/2
-                                            </span>
-                                        </Label>
-                                        <div className="flex items-center gap-2 mb-2">
-                                            <Input
-                                                type="file"
-                                                name="gallery"
-                                                onChange={handleFileChange2}
-                                                className="hidden"
-                                                id="gallery-upload"
-                                                accept="image/*"
-                                                multiple
-                                                disabled={formData.gallery.length >= 2}
+                                    {formData.image_url && (
+                                        <div className="relative inline-block mt-2">
+                                            <ImagePreview
+                                                src={formData.image_url}
+                                                alt="Event poster preview"
+                                                size="h-32 w-48 object-cover rounded"
                                             />
-                                            <Label
-                                                htmlFor="gallery-upload"
-                                                className={`cursor-pointer px-4 py-2 rounded-md flex items-center gap-2 ${formData.gallery.length >= 2
-                                                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                                    : 'bg-gray-200 hover:bg-gray-300'
-                                                    }`}
+                                            <Button
+                                                type="button"
+                                                onClick={removeThumbnail}
+                                                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 h-6 w-6 hover:bg-red-600"
+                                                size="icon"
                                             >
-                                                <ImageIcon className="h-4 w-4" />
-                                                {formData.gallery.length >= 2 ? 'Maximum reached' : 'Upload Gallery Images'}
-                                            </Label>
+                                                <X className="h-4 w-4" />
+                                            </Button>
                                         </div>
-                                        <div className="flex flex-wrap gap-2 mt-2">
-                                            {formData.gallery.map((image, index) => (
-                                                <div key={index} className="relative">
-                                                    <ImagePreview
-                                                        src={image}
-                                                        alt={`Gallery preview ${index}`}
-                                                        size="h-20 w-20 object-cover rounded"
-                                                    />
-                                                    <Button
-                                                        type="button"
-                                                        onClick={() => removeGalleryImage(index)}
-                                                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 h-6 w-6"
-                                                        size="icon"
-                                                    >
-                                                        <X className="h-4 w-4" />
-                                                    </Button>
-                                                </div>
-                                            ))}
-                                        </div>
-
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <Label htmlFor="link" className="mb-1">
-                                        Registration Link
-                                    </Label>
-                                    <Input
-                                        type="url"
-                                        name="link"
-                                        value={formData.link}
-                                        onChange={handleInputChange}
-                                        placeholder="https://example.com/event"
-                                    />
+                                    )}
                                 </div>
 
                                 <div className="flex gap-3">
                                     <Button
                                         type="submit"
                                         disabled={isSubmitting}
-                                        className="bg-emerald-700 hover:bg-green-700 disabled:bg-green-400 text-white px-6 py-2 rounded-md transition-colors flex items-center gap-2"
+                                        className="bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400 text-white px-6 py-2 rounded-md transition-colors flex items-center gap-2"
                                     >
                                         {isSubmitting
                                             ? (editingEvent ? 'Updating...' : 'Creating...')
@@ -1091,6 +793,102 @@ function Events() {
                 </div>
             </div>
 
+            {/* View Event Sheet */}
+            <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+                <SheetContent side="right" className="w-full sm:max-w-2xl overflow-y-auto">
+                    {viewEvent && (
+                        <>
+                            <SheetHeader>
+                                <SheetTitle>{viewEvent.name}</SheetTitle>
+                                <SheetDescription>
+                                    Event details and information
+                                </SheetDescription>
+                            </SheetHeader>
+                            <div className="grid gap-4 py-4">
+                                {viewEvent.image_url && (
+                                    <ImagePreview
+                                        src={viewEvent.image_url}
+                                        alt={viewEvent.name}
+                                        size="w-full h-48 object-cover rounded-md"
+                                    />
+                                )}
+                                
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <Label className="text-sm font-medium text-gray-500">Type</Label>
+                                        <div className="flex items-center gap-2 mt-1">
+                                            {(() => {
+                                                const TypeIcon = getTypeIcon(viewEvent.type);
+                                                return <TypeIcon className="h-4 w-4 text-emerald-600" />;
+                                            })()}
+                                            <p className="font-medium">{getTypeLabel(viewEvent.type)}</p>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <Label className="text-sm font-medium text-gray-500">Status</Label>
+                                        <div className="mt-1">
+                                            <Badge
+                                                variant="outline"
+                                                className={statusOptions.find(s => s.value === viewEvent.status)?.color}
+                                            >
+                                                {statusOptions.find(s => s.value === viewEvent.status)?.label}
+                                            </Badge>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <Label className="text-sm font-medium text-gray-500">Start Time</Label>
+                                        <div className="flex items-center gap-2 mt-1">
+                                            <Calendar className="h-4 w-4 text-gray-400" />
+                                            <p>{formatDateTime(viewEvent.start_at)}</p>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <Label className="text-sm font-medium text-gray-500">End Time</Label>
+                                        <div className="flex items-center gap-2 mt-1">
+                                            <Clock className="h-4 w-4 text-gray-400" />
+                                            <p>{formatDateTime(viewEvent.end_at)}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <Label className="text-sm font-medium text-gray-500">Venue</Label>
+                                    <div className="flex items-center gap-2 mt-1">
+                                        <MapPin className="h-4 w-4 text-gray-400" />
+                                        <p>{viewEvent.venue}</p>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <Label className="text-sm font-medium text-gray-500">Description</Label>
+                                    <p className="mt-1 text-gray-700 whitespace-pre-wrap">{viewEvent.description}</p>
+                                </div>
+                                
+                                {viewEvent.registration_link && (
+                                    <div>
+                                        <Label className="text-sm font-medium text-gray-500">Registration Link</Label>
+                                        <a 
+                                            href={viewEvent.registration_link} 
+                                            target="_blank" 
+                                            rel="noopener noreferrer"
+                                            className="mt-1 inline-flex items-center gap-2 text-emerald-600 hover:text-emerald-800 hover:underline"
+                                        >
+                                            <Link className="h-4 w-4" />
+                                            {viewEvent.registration_link}
+                                        </a>
+                                    </div>
+                                )}
+                            </div>
+                            <SheetFooter>
+                                <SheetClose asChild>
+                                    <Button>Close</Button>
+                                </SheetClose>
+                            </SheetFooter>
+                        </>
+                    )}
+                </SheetContent>
+            </Sheet>
+
             {/* Delete Confirmation Dialog */}
             <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
                 <AlertDialogContent>
@@ -1103,7 +901,10 @@ function Events() {
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
+                        <AlertDialogAction 
+                            onClick={handleDelete} 
+                            className="bg-red-600 hover:bg-red-700 text-white"
+                        >
                             Delete
                         </AlertDialogAction>
                     </AlertDialogFooter>
@@ -1123,24 +924,6 @@ function Events() {
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
                         <AlertDialogAction onClick={handleStatusUpdate}>
                             Update Status
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
-
-            {/* Registration Status Update Dialog */}
-            <AlertDialog open={regStatusDialogOpen} onOpenChange={setRegStatusDialogOpen}>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>Update Registration Status</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            Are you sure you want to change the registration status of this event?
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleStatusUpdate}>
-                            Update Registration
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
