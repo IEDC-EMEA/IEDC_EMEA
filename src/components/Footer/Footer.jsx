@@ -4,7 +4,7 @@ import Logo from "@/assets/logo/lineLogo.svg";
 function Footer() {
   return (
     <div className="w-full bg-white">
-      <footer className="p-4 bg-white sm:p-6 dark:bg-gray-900 max-w-[1300px] mx-auto  mt-10">
+      <footer className="p-4 bg-white sm:p-6 dark:bg-gray-900 max-w-[1300px] mx-auto ">
         <div>
           <img src={Logo} alt="Logo" className="h-12 mb-4 mx-auto sm:mx-0" />
           <div className="flex flex-col sm:flex-row justify-between items-center p-2">
