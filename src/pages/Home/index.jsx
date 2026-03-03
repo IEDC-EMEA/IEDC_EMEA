@@ -1,23 +1,22 @@
-import React from "react";
-import About from "../../components/About/About";
-import Cards from "../../components/Cards/Cards";
-import Faculty from "../../components/Faculty/Faculty";
-import Hero from "../../components/Hero/Hero";
-import Support from "../../components/Support/Support";
-import NavBar from '../../components/NavBar/NavBar';
-import Footer from '../../components/Footer/Footer';
-function Home() {
+import Hero from "./component/Hero";
+import Emirise from "./component/Emirise";
+import Activities from "./component/Activities";
+import About from "./component/About";
+import Testmonials from "./component/Testimonials";
+import Team from "./component/Team";
+import Contact from "./component/Contact";
+const Home = () => {
   return (
     <div>
-       <NavBar/>
       <Hero />
-      <Cards />
       <About />
-      <Faculty/>
-      <Support/>
-      <Footer/>
+      <Activities />
+      <Emirise />
+      <Testmonials />
+      <Team />
+      <Contact />
     </div>
   );
-}
+};
 
 export default Home;

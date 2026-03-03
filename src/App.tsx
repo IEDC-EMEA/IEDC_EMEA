@@ -1,90 +1,87 @@
 // import React from "react";
 import {
   createBrowserRouter,
-  // Navigate,
+  Navigate,
   RouterProvider,
 } from "react-router-dom";
-import { Home, 
-  // Team, Event, About, Join
- } from "@/pages";
+import { Home, Team, Event, Entrepreneurs, Reports } from "@/pages";
 
-// import SingleEvent from "@/pages/SingleEvent";
-// import { GuestLayout } from "@/layout";
+import SingleEvent from "@/pages/SingleEvent";
+import { GuestLayout } from "@/layout";
 
-
-// import AdminLayout from "@/layout/adminLayout";
-// import Dashboard from "@/pages/admin/dashboard";
-// import Interns from "./pages/admin/interns";
-// import Events from "./pages/admin/events";
-// import Queries from "./pages/admin/queries";
-// import FormRes from "./pages/admin/FormRes";
+import AdminLayout from "@/layout/adminLayout";
+import Dashboard from "@/pages/admin/dashboard";
+import Teams from "./pages/admin/teams";
+import Events from "./pages/admin/events";
+import AdminEntrepreneurs from "./pages/admin/entrepreneurs";
+import AdminReports from "./pages/admin/reports";
+import FundTransactions from "./pages/admin/fund_transaction";
 
 // import FormData from "@/pages/admin/formdata";
 
-
-// import Login from "./pages/admin/login";
-// import NotFound from "./notfound";
+import Login from "./pages/admin/login";
+import NotFound from "./notfound";
 
 import "./App.css";
 import "./index.css";
 
+
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Home />,
+    element: <GuestLayout />,
+    children: [
+      { path: "/", element: <Home /> },
+      { path: "/team", element: <Team /> },
+      { path: "/events", element: <Event /> },
+      { path: "/event/:id", element: <SingleEvent /> },
+      { path: "/entrepreneurs", element: <Entrepreneurs /> },
+      { path: "/reports", element: <Reports /> },
+    ],
   },
-  // {
-  //   path: "/",
-  //   element: <GuestLayout />,
-  //   children: [
-  //     { path: "/", element: <Home /> },
-  //     { path: "/about", element: <About /> },
-  //     { path: "/team", element: <Team /> },
-  //     { path: "/events", element: <Event /> },
-  //     { path: "/event/:id", element: <SingleEvent /> },
-  //     { path: "/join", element: <Join /> },
-  //     // { path: "/admin/responses", element: <FormData /> },
-  //   ],
-  // },
 
-  // {
-  //   path: "/dashboard",
-  //   element: <AdminLayout />,
-  //   children: [
-  //     {
-  //       path: ".",
-  //       element: <Navigate to="" />,
-  //     },
-  //     {
-  //       path: "",
-  //       element: <Dashboard />,
-  //     },
-  //     {
-  //       path: "interns",
-  //       element: <Interns />,
-  //     },
-  //     {
-  //       path: "events",
-  //       element: <Events />,
-  //     },
-  //     {
-  //       path: "queries",
-  //       element: <Queries />,
-  //     },
-  //     {
-  //       path: "responses",
-  //       element: <FormRes />,
-  //     }
-  //   ],
-  // },
-  // {
-  //   path: "/signin",
-  //   element: <Login />,
-  // },
-  // {
-  //   path: "*",
-  //   element: <NotFound />,
-  // },
+  {
+    path: "/dashboard",
+    element: <AdminLayout />,
+    children: [
+      {
+        path: ".",
+        element: <Navigate to="" />,
+      },
+      {
+        path: "",
+        element: <Dashboard />,
+      },
+      {
+        path: "teams",
+        element: <Teams />,
+      },
+      {
+        path: "events",
+        element: <Events />,
+      },
+      {
+        path: "transactions",
+        element: <FundTransactions />,
+      },
+      {
+        path: "entrepreneurs",
+        element: <AdminEntrepreneurs />,
+      },
+      {
+        path: "reports",
+        element: <AdminReports />,
+      },
+    ],
+  },
+  {
+    path: "/signin",
+    element: <Login />,
+  },
+  {
+    path: "*",
+    element: <NotFound />,
+  },
   {
     path: "*",
     element: <Home />,
