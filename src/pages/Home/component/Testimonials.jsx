@@ -1,4 +1,7 @@
 import QuoteIcon from "@/assets/avatars/quote.svg";
+import NodelOfficer from "./nodel.jpg";
+import Principla from "./principal.jpeg";
+
 const Testmonials = () => {
   return (
     <div className="flex items-center gap-6 flex-col text-center p-8  rounded-2xl max-w-[1200px] w-full mx-auto">
@@ -11,7 +14,7 @@ const Testmonials = () => {
 
       <div className="flex flex-col sm:flex-row gap-4 p-6 bg-white rounded-2xl shadow-md w-full max-w-[800px]">
         <img
-          src="https://randomuser.me/api/portraits/men/1.jpg"
+          src={NodelOfficer}
           alt="John Doe"
           className="w-36 h-36 rounded-full mr-4"
         />
@@ -39,7 +42,7 @@ const Testmonials = () => {
       </div>
         <div className="flex flex-col sm:flex-row gap-4 p-6 bg-white rounded-2xl shadow-md w-full max-w-[800px]">
         <img
-          src="https://randomuser.me/api/portraits/men/1.jpg"
+          src={Principla}
           alt="John Doe"
           className="w-36 h-36 rounded-full mr-4"
         />
