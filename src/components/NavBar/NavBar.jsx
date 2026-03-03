@@ -1,77 +1,98 @@
 import React, { useState } from "react";
 import logo from "@/assets/logo/lineLogo.svg";
-import { HashLink as Link } from "react-router-hash-link";
+import { HashLink } from "react-router-hash-link";
+import { NavLink, useLocation } from "react-router-dom";
 
 function NavBar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  
+  const location = useLocation();
+
   const navItems = [
-    { name: "Home", to: "/" },
-    { name: "About", to: "/#about" },
-    { name: "Activities", to: "events" },
-    { name: "Reports", to: "reports" },
-    { name: "EMEA", to: "https://www.emeacollege.ac.in/" },
+    { name: "Home", to: "/", type: "route" },
+    { name: "About", to: "/#about", type: "hash" },
+    { name: "Activities", to: "/events", type: "route" },
+    { name: "Reports", to: "/reports", type: "route" },
+    { name: "EMEA", to: "https://www.emeacollege.ac.in/", type: "external" },
   ];
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
-
-  const closeMenu = () => {
-    setIsMenuOpen(false);
+  const isHashActive = (to) => {
+    return location.pathname + location.hash === to;
   };
 
   return (
     <div className="fixed w-full top-10 z-50 px-3 sm:px-6 md:px-8">
-      <nav className="bg-white shadow-md border border-gray-200 px-4 sm:px-6 lg:px-8 py-2.5 rounded-full max-w-[1400px] mx-auto">
+      <nav className="bg-white/50 backdrop-blur-xl shadow-md border border-gray-200 px-4 sm:px-6 lg:px-8 py-2.5 rounded-full max-w-[1400px] mx-auto">
         <div className="flex items-center justify-between">
+          
           {/* Logo */}
-          <Link to="#" className="flex items-center" onClick={closeMenu}>
-            <img 
-              src={logo} 
-              className="h-10 sm:h-12 md:h-14 w-auto" 
-              alt="IEDC EMEA Logo" 
+          <NavLink to="/" className="flex items-center">
+            <img
+              src={logo}
+              className="h-10 sm:h-12 md:h-14 w-auto"
+              alt="IEDC EMEA Logo"
             />
-          </Link>
+          </NavLink>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-6 lg:space-x-8">
-            {navItems.map((item, index) => (
-              item.to.startsWith("http") ? (
-                <a
+            {navItems.map((item, index) => {
+              if (item.type === "external") {
+                return (
+                  <a
+                    key={index}
+                    href={item.to}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gray-700 hover:text-emerald-600 font-medium transition-colors duration-200 px-2 py-1"
+                  >
+                    {item.name}
+                  </a>
+                );
+              }
+
+              if (item.type === "hash") {
+                return (
+                  <HashLink
+                    key={index}
+                    smooth
+                    to={item.to}
+                    className={`font-medium transition-colors duration-200 px-2 py-1 ${
+                      isHashActive(item.to)
+                        ? "text-emerald-600"
+                        : "text-gray-700 hover:text-emerald-600"
+                    }`}
+                  >
+                    {item.name}
+                  </HashLink>
+                );
+              }
+
+              return (
+                <NavLink
                   key={index}
-                  href={item.to}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-gray-700 hover:text-emerald-600 font-medium transition-colors duration-200 px-2 py-1"
-                >
-                  {item.name}
-                </a>
-              ) : (
-                <Link
-                  key={index}
-                  smooth
                   to={item.to}
-                  className="text-gray-700 hover:text-emerald-600 font-medium transition-colors duration-200 px-2 py-1"
+                  className={({ isActive }) =>
+                    `font-medium transition-colors duration-200 px-2 py-1 ${
+                      isActive
+                        ? "text-emerald-600"
+                        : "text-gray-700 hover:text-emerald-600"
+                    }`
+                  }
                 >
                   {item.name}
-                </Link>
-              )
-            ))}
+                </NavLink>
+              );
+            })}
           </div>
 
           {/* Mobile Menu Button */}
           <button
-            onClick={toggleMenu}
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
             type="button"
             className="md:hidden p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-            aria-controls="mobile-menu"
-            aria-expanded={isMenuOpen}
           >
-            <span className="sr-only">Open main menu</span>
             <svg
               className="w-6 h-6"
-              aria-hidden="true"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -95,37 +116,65 @@ function NavBar() {
           </button>
         </div>
 
-        {/* Mobile Navigation Menu */}
-        <div 
-          className={`${isMenuOpen ? 'block' : 'hidden'} md:hidden mt-4 transition-all duration-300 ease-in-out`}
-          id="mobile-menu"
+        {/* Mobile Dropdown */}
+        <div
+          className={`absolute top-16 right-4 z-50 w-40 bg-white text-black rounded-lg shadow-lg flex flex-col p-4 transition-all duration-300 ${
+            isMenuOpen
+              ? "scale-100 opacity-100"
+              : "scale-95 opacity-0 pointer-events-none"
+          }`}
         >
-          <div className="py-3 space-y-1 border-t border-gray-200">
-            {navItems.map((item, index) => (
-              <div key={index} className="px-2">
-                {item.to.startsWith("http") ? (
-                  <a
-                    href={item.to}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block px-4 py-3 text-gray-700 hover:text-emerald-600 hover:bg-gray-50 rounded-lg font-medium transition-colors duration-200"
-                    onClick={closeMenu}
-                  >
-                    {item.name}
-                  </a>
-                ) : (
-                  <Link
-                    smooth
-                    to={item.to}
-                    className="block px-4 py-3 text-gray-700 hover:text-emerald-600 hover:bg-gray-50 rounded-lg font-medium transition-colors duration-200"
-                    onClick={closeMenu}
-                  >
-                    {item.name}
-                  </Link>
-                )}
-              </div>
-            ))}
-          </div>
+          {navItems.map((item, index) => {
+            if (item.type === "external") {
+              return (
+                <a
+                  key={index}
+                  href={item.to}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="py-2 text-center hover:text-emerald-500"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {item.name}
+                </a>
+              );
+            }
+
+            if (item.type === "hash") {
+              return (
+                <HashLink
+                  key={index}
+                  smooth
+                  to={item.to}
+                  className={`py-2 text-center ${
+                    isHashActive(item.to)
+                      ? "text-emerald-600"
+                      : "text-gray-800 hover:text-emerald-500"
+                  }`}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {item.name}
+                </HashLink>
+              );
+            }
+
+            return (
+              <NavLink
+                key={index}
+                to={item.to}
+                className={({ isActive }) =>
+                  `py-2 text-center ${
+                    isActive
+                      ? "text-emerald-600"
+                      : "text-gray-800 hover:text-emerald-500"
+                  }`
+                }
+                onClick={() => setIsMenuOpen(false)}
+              >
+                {item.name}
+              </NavLink>
+            );
+          })}
         </div>
       </nav>
     </div>

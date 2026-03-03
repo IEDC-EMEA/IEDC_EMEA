@@ -192,7 +192,7 @@ const Entrepreneur = () => {
                 </div>
 
                 {/* Footer */}
-                <div className="px-6 py-4 bg-gray-50 border-t border-gray-100">
+                {/* <div className="px-6 py-4 bg-gray-50 border-t border-gray-100">
                   <p className="text-sm text-gray-500">
                     Added {new Date(entrepreneur.created_at).toLocaleDateString('en-US', {
                       month: 'short',
@@ -200,7 +200,7 @@ const Entrepreneur = () => {
                       year: 'numeric'
                     })}
                   </p>
-                </div>
+                </div> */}
               </motion.div>
             ))}
           </div>

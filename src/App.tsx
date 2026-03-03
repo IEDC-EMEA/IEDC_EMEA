@@ -25,6 +25,7 @@ import NotFound from "./notfound";
 import "./App.css";
 import "./index.css";
 
+
 const router = createBrowserRouter([
   {
     path: "/",

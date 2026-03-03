@@ -1,7 +1,9 @@
 import React from "react";
 import { ArrowRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Team = () => {
+  const navigate = useNavigate();
   const teamMembers = [
     {
       name: "John Doe",
@@ -61,7 +63,7 @@ const Team = () => {
           <p className="secondary-color">Our Members</p>
         </div>
 
-        <button className="primary-color  bg-white px-4 hover:bg-emerald-700 hover:text-white py-2 text-sm group rounded-full font-medium flex items-center gap-2 transition-all duration-300 h-10">
+        <button onClick={() => navigate('/team')} className="primary-color  bg-white px-4 hover:bg-emerald-700 hover:text-white py-2 text-sm group rounded-full font-medium flex items-center gap-2 transition-all duration-300 h-10">
           View IEDC Team
           <ArrowRight size={16} />
         </button>
@@ -77,7 +79,7 @@ const Team = () => {
             <img
               src={member.image}
               alt={member.name}
-              className="w-36 h-36 rounded-full mr-4 rounded-full"
+              className="w-36 h-36 rounded-full mr-4 "
             />
             <div className="flex flex-col items-center">
               <p className="">{member.role}</p>
@@ -100,7 +102,7 @@ const Team = () => {
             <img
               src={member.image}
               alt={member.name}
-              className="w-36 h-36 rounded-full mr-4 rounded-full"
+              className="w-36 h-36 rounded-full mr-4 "
             />
             <div className="flex flex-col items-center">
               <p className="">{member.role}</p>

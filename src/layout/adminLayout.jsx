@@ -1,8 +1,6 @@
 import React, { useCallback } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { LogOut, Home, Users, Menu, X, Spade } from "lucide-react";
-// import { auth } from "@/config/firebase";
-import { signOut } from "firebase/auth";
 import { toast } from "sonner";
 import AuthRoleRequire from "@/components2/router/AuthRoleRequire";
 import {

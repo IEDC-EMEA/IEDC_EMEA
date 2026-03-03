@@ -7,7 +7,7 @@ function GuestLayout() {
   const location = useLocation();
 
   return (
-    <div className="relative flex flex-col w-full min-h-screen bg-[#F4F4F2] ">
+    <div className="relative flex flex-col w-full min-h-screen bg-[#F4F4F2] overflow-x-hidden overflow-y-auto">
       {/* NavBar fade + slide down */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
