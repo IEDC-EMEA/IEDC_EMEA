@@ -124,7 +124,7 @@ const Team = () => {
                 className="flex flex-col items-center gap-4 p-6  max-w-[400px]"
               >
                 <img
-                  src={member.image}
+                  src={member.image_url}
                   alt={member.name}
                   className="w-36 h-36 rounded-full mr-4 "
                 />

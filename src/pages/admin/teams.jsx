@@ -455,7 +455,7 @@ function Teams() {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="hidden sm:grid  grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <div className="bg-white rounded-lg shadow-sm p-6 border">
             <h3 className="text-sm font-medium text-gray-500 mb-2">Total Members</h3>
             <p className="text-3xl font-bold text-gray-900">{teams.length}</p>
@@ -625,6 +625,26 @@ function Teams() {
               <p className="text-gray-500">Try adjusting your search or filters</p>
             </div>
           )}
+        </div>
+
+            {/* Stats Cards */}
+        <div className="grid sm:hidden  grid-cols-1 md:grid-cols-4 gap-6 mt-8">
+          <div className="bg-white rounded-lg shadow-sm p-6 border">
+            <h3 className="text-sm font-medium text-gray-500 mb-2">Total Members</h3>
+            <p className="text-3xl font-bold text-gray-900">{teams.length}</p>
+          </div>
+          <div className="bg-white rounded-lg shadow-sm p-6 border">
+            <h3 className="text-sm font-medium text-gray-500 mb-2">Active Members</h3>
+            <p className="text-3xl font-bold text-emerald-700">{teams.length}</p>
+          </div>
+          <div className="bg-white rounded-lg shadow-sm p-6 border">
+            <h3 className="text-sm font-medium text-gray-500 mb-2">Departments</h3>
+            <p className="text-3xl font-bold text-blue-600">{getDepartmentCount()}</p>
+          </div>
+          <div className="bg-white rounded-lg shadow-sm p-6 border">
+            <h3 className="text-sm font-medium text-gray-500 mb-2">Filtered Results</h3>
+            <p className="text-3xl font-bold text-orange-600">{filteredTeams.length}</p>
+          </div>
         </div>
       </div>
 

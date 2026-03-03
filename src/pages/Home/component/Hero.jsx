@@ -24,7 +24,7 @@ const Hero = () => {
     </section>
 
       <motion.div
-    className="z-10 absolute hidden sm:block top-52 -left-[80px] w-[300px] h-[300px] bg-gradient-to-r from-[#249267] via-[#249267] to-[#249267] rounded-full blur-2xl opacity-40"
+    className="z-10 absolute top-52 -left-[250px] sm:-left-[80px] w-[300px] h-[300px] bg-gradient-to-r from-[#249267] via-[#249267] to-[#249267] rounded-full blur-2xl opacity-40"
     initial={{ scale: 1, x: 0 }}
     // animate={{
     //   scale: [1, 1.2, 1], // Pulsating effect
