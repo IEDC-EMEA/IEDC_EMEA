@@ -5,6 +5,21 @@
 @tailwind components;
 @tailwind utilities;
 
+.primary-color {
+    color: #1D7E53;
+}
+.secondary-color {
+    color: #676767;
+}
+.primary-bg {
+    background-color: #1D7E53;
+}
+.primary-border {
+    border-color: #1D7E53;
+    border-width: 1px;
+}
+
+
 /* global css */
 @layer base {
     html {

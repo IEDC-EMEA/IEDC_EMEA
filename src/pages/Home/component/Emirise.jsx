@@ -1,25 +1,27 @@
 import EmiriseImg from "./emirise.png";
+import { ArrowRight } from "lucide-react";
+
 const Emirise = () => {
   return (
-    <div className="flex p-4 gap-3">
+    <div className="flex flex-col sm:flex-row p-8 bg-white rounded-2xl gap-8 max-w-[1200px] w-full items-center justify-center mx-auto">
       <img
         src={EmiriseImg}
         alt="Emirise Logo"
-        className="w-32 h-32 object-contain rounded-xl"
+        className=" object-contain rounded-xl"
       />
-      <div className="flex-grow flex flex-col gap-2">
+      <div className="flex-grow flex flex-col gap-2 text-left">
         <div className="flex justify-between">
-          <>
-            <h1 className="text-4xl font-bold mb-4">Emirise</h1>
-            <p className="text-lg text-gray-700">
+          <div className="flex flex-col gap-1">
+            <h1 className="text-4xl font-medium uppercase ">Emirise</h1>
+            <p className="text-lg text-gray-800">
               Flagship Program of IEDC EMEA
             </p>
-          </>
-          <button className="mt-4 px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600 transition-colors">
-            View Details -
+          </div>
+          <button className="primary-color border-2 primary-border bg-white px-4 hover:bg-emerald-700 hover:text-white py-2 text-sm group rounded-full font-medium flex items-center gap-2 transition-all duration-300 h-10">
+            View Details  <ArrowRight size={16} />
           </button>
         </div>
-        <p className="text-lg text-gray-700">
+        <p className="secondary-color">
           EMIRISE is the flagship innovation and entrepreneurship initiative of
           IEDC EMEA, created to identify, nurture, and accelerate student-driven
           ideas into impactful and sustainable ventures. The program provides

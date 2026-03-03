@@ -1,62 +1,74 @@
-
+import { Mail, Phone, MapPin, ArrowRight } from "lucide-react";
 
 const Contact = () => {
   return (
-    <div className="bg-gray-100 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-3xl font-bold text-center mb-8">Get in Touch</h2>
-            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-                <div className="bg-white rounded-lg shadow p-6">
-                    <h3 className="text-xl font-semibold mb-4">Contact Information</h3>
-                    <p className="text-gray-700 mb-2"><strong>Email:</strong>
-                    <a href="mailto:iedcemea@gmail.com" className="text-orange-500 hover:underline">
-                        iedcemea@gmail.com
-                    </a>
-                    </p>
-                    <p className="text-gray-700 mb-2"><strong>Phone:</strong> +91 12345 67890</p>
-                    <p className="text-gray-700 mb-2"><strong>Address:</strong> 123 Innovation Street, Tech City, Country</p>
-                </div>
-                <div className="bg-white rounded-lg shadow p-6">
-                    <h3 className="text-xl font-semibold mb-4">Send Us a Message</h3>
-                    <form className="space-y-4">
-                        <div>
-                            <label htmlFor="name" className="block text-gray-700">Name</label>
-                            <input type="text" id="name" className="w-full px-3 py-2 border rounded" placeholder="Your Name" />
-                        </div>
-                        <div>
-                            <label htmlFor="email" className="block text-gray-700">Email</label>
-                            <input type="email" id="email" className="w-full px-3 py-2 border rounded" placeholder="Your Email" />
-                        </div>
-                        <div>
-                            <label htmlFor="message" className="block text-gray-700">Message</label>
-                            <textarea id="message" className="w-full px-3 py-2 border rounded" placeholder="Your Message" rows="4"></textarea>
-                        </div>
-                        <button type="submit" className="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600 transition-colors">
-                            Send Message
-                        </button>
-                    </form>
-                </div>
-                <div className="bg-white rounded-lg shadow p-6">
-                    <h3 className="text-xl font-semibold mb-4">Follow Us</h3>
-                    <div className="flex items-center gap-4">
-                        <a href="https://www.facebook.com/iedcemea" target="_blank" rel="noopener noreferrer" className="text-gray-700 hover:text-gray-900">    
-                            Facebook
-                        </a>
-                        <a href="https://www.twitter.com/iedcemea" target="_blank" rel="noopener noreferrer" className="text-gray-700 hover:text-gray-900"> 
-                            Twitter
-                        </a>
-                        <a href="https://www.linkedin.com/company/iedcemea" target="_blank" rel="noopener noreferrer" className="text-gray-700 hover:text-gray-900">    
-                            LinkedIn
-                        </a>
-                        <a href="https://www.instagram.com/iedcemea" target="_blank" rel="noopener noreferrer" className="text-gray-700 hover:text-gray-900">
-                            Instagram
-                        </a>
-                    </div>
-                </div>
-            </div>
+    <div className="bg-[#ECF0ED] py-12 px-4  w-full mx-auto  ">
+      <div className="max-w-[1200px] flex flex-col sm:flex-row gap-6 items-center justify-between w-full mx-auto">
+        <div>
+          <h1 className="text-5xl font-medium mb-4">Contact Us</h1>
+          <p className="secondary-color mb-6 max-w-[500px]">
+            We are committed to processing the information in order to contact
+            you and talk about your project.{" "}
+          </p>
+
+          <div className="flex gap-6 items-center">
+            <span className="block text-sm font-medium text-gray-700 mb-1">
+              <Mail color="#1D7E53" />
+            </span>
+            <a href="mailto:contact@iedc-emea.org" className=" hover:underline">
+              iedcemea@gmail.com
+            </a>
+          </div>
+          <div className="flex gap-6 items-center mt-4">
+            <span className="block text-sm font-medium text-gray-700 mb-1">
+              <Phone color="#1D7E53" />
+            </span>
+            <a href="tel:+1234567890" className=" hover:underline">
+              +91 96337 98513
+            </a>
+          </div>
+          <div className="flex gap-6 items-center mt-4">
+            <span className="block text-sm font-medium text-gray-700 mb-1">
+              <MapPin color="#1D7E53" />
+            </span>
+            <p className="text-gray-700">
+              EMEA College of Arts and Science <br />
+              Kondotty, kerala
+            </p>
+          </div>
         </div>
+        <div className="flex flex-col gap-3 w-full max-w-[400px]">
+          <label
+            htmlFor="email"
+            className="block text-sm font-medium text-gray-700 "
+          >
+            Email
+          </label>
+          <input
+            type="email"
+            id="email"
+            className="w-full px-4 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 max-w-[340px]"
+            placeholder="Enter your email"
+          />
+          <label
+            htmlFor="message"
+            className="block text-sm font-medium text-gray-700 mt-4 "
+          >
+            Message
+          </label>
+          <textarea
+            id="message"
+            className="w-full min-h-[100px] max-h-[200px] px-4 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 max-w-[340px]"
+            placeholder="Enter your message"
+            rows="4"
+          ></textarea>
+          <button className="primary-bg mt-4 max-w-[340px] px-6 py-2 justify-center text-white group rounded-full font-medium flex items-center gap-2 transition-all duration-300 hover:bg-emerald-600">
+            Send Message <ArrowRight color="white" />
+          </button>
+        </div>
+      </div>
     </div>
   );
-}
+};
 
 export default Contact;
