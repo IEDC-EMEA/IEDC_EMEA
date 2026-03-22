@@ -1,57 +1,70 @@
 import React from "react";
 import { ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { Mehrin, Fidha, Najiya, Sinan, Sanan, Rinshida, Riya, Naseef, Noureen } from "../../assets/team";
+import NodelOfficer from "./nodel.jpg";
 
 const Team = () => {
   const navigate = useNavigate();
   const teamMembers = [
     {
-      name: "John Doe",
-      role: "President",
-      image: "https://randomuser.me/api/portraits/men/1.jpg",
-      designation: "/team/john-doe",
+      name: "Muhammed Faisal T",
+      role: "Nodal Officer",
+      image: NodelOfficer,
+      designation: "Faculty (commerce)",
     },
     {
-      name: "Jane Smith",
-      role: "Vice President",
-      image: "https://randomuser.me/api/portraits/women/1.jpg",
-      designation: "/team/jane-smith",
+      name: "Mohammed Sinan",
+      role: "CEO",
+      image: Sinan,
+      designation: "",
     },
     {
-      name: "Michael Johnson",
-      role: "Secretary",
-      image: "https://randomuser.me/api/portraits/men/2.jpg",
-      designation: "/team/michael-johnson",
+      name: "Riya hana",
+      role: "CEO",
+      image: Riya,
+      designation: "",
     },
     {
-      name: "Emily Davis",
-      role: "Treasurer",
-      image: "https://randomuser.me/api/portraits/women/2.jpg",
-      designation: "/team/emily-davis",
+      name: "Fidha Shirin",
+      role: "COO",
+      image: Fidha,
+      designation: "",
     },
     {
-      name: "Sarah Wilson",
-      role: "Member",
-      image: "https://randomuser.me/api/portraits/women/3.jpg",
-      designation: "/team/sarah-wilson",
+      name: "Noureen zaineeb",
+      role: "CFO",
+      image: Noureen,
+      designation: "",
     },
     {
-      name: "Emily Davis",
-      role: "Treasurer",
-      image: "https://randomuser.me/api/portraits/women/2.jpg",
-      designation: "/team/emily-davis",
-    },
-    {
-      name: "Emily Davis",
-      role: "Treasurer",
-      image: "https://randomuser.me/api/portraits/women/2.jpg",
-      designation: "/team/emily-davis",
+      name: "Muhammed Naseef AK",
+      role: "CMO",
+      image: Naseef,
+      designation: "",
+    },  {
+      name: "Fathima Mehrin",
+      role: "CTO",
+      image: Mehrin,
+      designation: "",
     },
       {
-      name: "David Brown",
-      role: "Member",
-      image: "https://randomuser.me/api/portraits/men/3.jpg",
-      designation: "/team/david-brown",
+      name: "Rinshida",
+      role: "CWO",
+      image: Rinshida,
+      designation: "",
+    }, 
+    {
+      name: "Muhammed Sanan",
+      role: "Community lead",
+      image: Sanan,
+      designation: "",
+    },
+      {
+      name: "Najiya Nasrin",
+      role: "Research lead",
+      image: Najiya,
+      designation: "graphic designer",
     },
   ];
 

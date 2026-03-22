@@ -15,14 +15,14 @@ const Testmonials = () => {
       <div className="flex flex-col sm:flex-row gap-4 p-6 bg-white rounded-2xl shadow-md w-full max-w-[800px]">
         <img
           src={NodelOfficer}
-          alt="John Doe"
+          alt="Faisal"
           className="w-36 h-36 rounded-full mr-4"
         />
         <div className="flex flex-col gap-4 text-left">
           <div className="flex justify-between items-end ">
             <div className="flex flex-col items-start ">
-              <h2 className="text-lg font-semibold">John Doe</h2>
-              <p className="text-sm text-gray-500">Founder, Startup XYZ</p>
+              <h2 className="text-lg font-semibold">Muhammed Faisal T</h2>
+              <p className="text-sm text-gray-500">IEDC In Charge</p>
             </div>
             <img
               src={QuoteIcon}
@@ -31,26 +31,21 @@ const Testmonials = () => {
             />
           </div>
           <p className="secondary-color">
-            “Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cursus
-            nibh mauris, nec turpis orci lectus maecenas. Suspendisse sed magna
-            eget nibh in turpis. Consequat duis diam lacus arcu. Faucibus
-            venenatis felis id augue sit cursus pellentesque enim Lorem ipsum
-            dolor sit amet, consectetur adipiscing elit. Cursus nibh mauris, nec
-            turpis orci lectus maecenas. Suspendisse”
+            “IEDC, EMEA College is your space to build. We provide the tools, mentorship, and launchpad to turn your ideas into real ventures. Let’s innovate and create impact, together.”
           </p>
         </div>
       </div>
-        <div className="flex flex-col sm:flex-row gap-4 p-6 bg-white rounded-2xl shadow-md w-full max-w-[800px]">
+      <div className="flex flex-col sm:flex-row gap-4 p-6 bg-white rounded-2xl shadow-md w-full max-w-[800px]">
         <img
           src={Principla}
-          alt="John Doe"
+          alt="Dr. Riyad"
           className="w-36 h-36 rounded-full mr-4"
         />
         <div className="flex flex-col gap-4 text-left">
           <div className="flex justify-between items-end ">
             <div className="flex flex-col items-start ">
-              <h2 className="text-lg font-semibold">John Doe</h2>
-              <p className="text-sm text-gray-500">Founder, Startup XYZ</p>
+              <h2 className="text-lg font-semibold">Dr. Riyad</h2>
+              <p className="text-sm text-gray-500">Principal</p>
             </div>
             <img
               src={QuoteIcon}
