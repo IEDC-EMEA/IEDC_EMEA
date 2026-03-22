@@ -89,11 +89,13 @@ const Team = () => {
             key={index}
             className="flex flex-col items-center gap-4 p-6  max-w-[400px]"
           >
-            <img
-              src={member.image}
-              alt={member.name}
-              className="w-36 h-36 rounded-full mr-4 "
-            />
+            <div className="w-36 h-36 rounded-full overflow-hidden border-2 border-emerald-500 shadow-md bg-white">
+              <img
+                src={member.image}
+                alt={member.name}
+                className="w-full h-full object-cover object-center grayscale contrast-110 brightness-95 transition-transform duration-500 ease-out hover:scale-110"
+              />
+            </div>
             <div className="flex flex-col items-center">
               <p className="">{member.role}</p>
               <p className="text-xl font-semibold primary-color">
@@ -112,11 +114,13 @@ const Team = () => {
             key={index}
             className="flex flex-col items-center gap-4 p-6  max-w-[400px]"
           >
-            <img
-              src={member.image}
-              alt={member.name}
-              className="w-36 h-36 rounded-full mr-4 "
-            />
+            <div className="w-36 h-36 rounded-full overflow-hidden border-2 border-emerald-500 shadow-md bg-white">
+              <img
+                src={member.image}
+                alt={member.name}
+                className="w-full h-full object-cover object-center grayscale contrast-110 brightness-95 transition-transform duration-500 ease-out hover:scale-110"
+              />
+            </div>
             <div className="flex flex-col items-center">
               <p className="">{member.role}</p>
               <p className="text-xl font-semibold primary-color">

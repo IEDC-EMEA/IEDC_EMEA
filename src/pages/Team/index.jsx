@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { supabase } from "@/lib/createClient";
-import TeamCard from "./TeamCard";
-import { Users, Linkedin, Instagram, Mail, Phone, MapPin } from "lucide-react";
+import { Users, Linkedin, Instagram } from "lucide-react";
 
 // Animation settings
 const sectionVariants = {
@@ -30,7 +29,7 @@ const Team = () => {
   const [teamMembers, setTeamMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const isMobile = window.innerWidth < 768;
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
 
   useEffect(() => {
     fetchTeamMembers();
@@ -108,92 +107,112 @@ const Team = () => {
           </div>
         </div>
       </motion.div>
-      <div className="flex items-center justify-center w-full flex-wrap gap-4">
-        {/* All Team Members Grid */}
-        {teamMembers.length > 0 ? (
-          <motion.div
-            variants={sectionVariants}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, amount: isMobile ? 0.05 : 0.2 }}
-            className="px-4"
-          >
+      {/* All Team Members Grid */}
+      {teamMembers.length > 0 ? (
+        <motion.div
+          variants={sectionVariants}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: isMobile ? 0.05 : 0.2 }}
+          className="px-4"
+        >
+          <div className="flex flex-wrap items-start justify-center gap-x-4 gap-y-6 max-w-7xl mx-auto">
             {teamMembers.map((member, index) => (
-              <div
-                key={index}
-                className="flex flex-col items-center gap-4 p-6  max-w-[400px]"
+              <motion.div
+                key={member.id || index}
+                className="w-[170px] sm:w-[180px]"
+                variants={cardVariants}
+                initial="hidden"
+                whileInView="show"
+                viewport={{ once: true, amount: 0.1 }}
+                custom={index}
               >
-                <img
-                  src={member.image}
-                  alt={member.name}
-                  className="w-36 h-36 rounded-full mr-4 "
-                />
-                <div className="flex flex-col items-center">
-                  <p className="">{member.role}</p>
-                  <p className="text-xl font-semibold primary-color">
-                    {member.name}
-                  </p>
-                  <p className="text-sm secondary-color">
-                    {member.designation}
-                  </p>
+                <div className="flex flex-col items-center text-center gap-2">
+                  <div className="w-36 h-36 rounded-full overflow-hidden border-2 border-emerald-500 bg-gray-100">
+                    {member.image_url ? (
+                      <img
+                        src={member.image_url}
+                        alt={member.name}
+                        className="w-full h-full object-cover  object-center grayscale transition-transform duration-500 ease-out hover:scale-110"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-emerald-500">
+                        <Users className="w-12 h-12" />
+                      </div>
+                    )}
+                  </div>
 
-                     <div className="flex flex-wrap gap-2 ">
-                  {/* {member.linkedin_url && ( */}
-                    <a
-                      href={member.linkedin_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="p-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors"
-                      title="LinkedIn"
-                    >
-                      <Linkedin className="w-4 h-4" />
-                    </a>
-                  {/* )} */}
+                  <div className="w-full px-1">
+                   
+                     <p className="text-sm text-gray-500 h-5 leading-5 truncate">
+                      {member.designation || "\u00A0"}
+                    </p>
+                     <p className="text-[12px] secondary-color h-5 leading-5 truncate">
+                      {member.role || "Team Member"}
+                    </p>
+                    <p className="text-md md:text-lg font-semibold primary-color leading-6 h-12 overflow-hidden">
+                      {member.name}
+                    </p>
+                   
+                  </div>
 
-                  {member.instagram_url && (
-                    <a
-                      href={member.instagram_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="p-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors"
-                      title="Instagram"
-                    >
-                      <Instagram className="w-4 h-4" />
-                    </a>
-                  )}
+                  <div className="flex justify-center gap-2 h-8 items-center">
+                    {member.linkedin_url && (
+                      <a
+                        href={member.linkedin_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors"
+                        title="LinkedIn"
+                      >
+                        <Linkedin className="w-4 h-4" />
+                      </a>
+                    )}
+
+                    {member.instagram_url && (
+                      <a
+                        href={member.instagram_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors"
+                        title="Instagram"
+                      >
+                        <Instagram className="w-4 h-4" />
+                      </a>
+                    )}
+                  </div>
                 </div>
-                </div>
-             
-              </div>
+              </motion.div>
             ))}
-          </motion.div>
-        ) : (
-          <motion.div
-            variants={sectionVariants}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, amount: isMobile ? 0.05 : 0.2 }}
-            className="text-center py-20"
-          >
-            <div className="max-w-md mx-auto">
-              <div className="w-24 h-24 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Users className="w-12 h-12 text-emerald-400" />
-              </div>
-              <h3 className="text-2xl font-bold mb-3">Team Coming Soon</h3>
-              <p className="text-gray-600 mb-6">
-                Our team information is being updated. Please check back later
-                to meet the IEDC EMEA team.
-              </p>
-              <button
-                onClick={fetchTeamMembers}
-                className="px-6 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors"
-              >
-                Refresh
-              </button>
+          </div>
+        </motion.div>
+      ) : (
+        <motion.div
+          variants={sectionVariants}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: isMobile ? 0.05 : 0.2 }}
+          className="text-center py-20"
+        >
+          <div className="max-w-md mx-auto">
+            <div className="w-24 h-24 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Users className="w-12 h-12 text-emerald-400" />
             </div>
-          </motion.div>
-        )}
-      </div>
+            <h3 className="text-2xl font-bold mb-3">Team Coming Soon</h3>
+            <p className="text-gray-600 mb-6">
+              Our team information is being updated. Please check back later
+              to meet the IEDC EMEA team.
+            </p>
+            <button
+              onClick={fetchTeamMembers}
+              className="px-6 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors"
+            >
+              Refresh
+            </button>
+          </div>
+        </motion.div>
+      )}
       {/* <>
            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 max-w-7xl mx-auto">
             {teamMembers.map((member, index) => (
