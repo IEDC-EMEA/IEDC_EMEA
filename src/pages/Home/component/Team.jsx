@@ -1,7 +1,7 @@
 import React from "react";
 import { ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Mehrin, Fidha, Najiya, Sinan, Sanan, Rinshida, Riya, Naseef, Noureen } from "../../assets/team";
+import { Mehrin, Fidha, Najiya, Sinan, Sanan, Rinshida, Riya, Naseef, Noureen } from "@/assets/team";
 import NodelOfficer from "./nodel.jpg";
 
 const Team = () => {
