@@ -4,13 +4,14 @@ import { NextButton, PrevButton, usePrevNextButtons } from "./Arrowbtn";
 import { ChevronsRight, Calendar } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import classNames from "classnames";
+import { useNavigate } from "react-router-dom";
 
 const EmblaCarousel = (props) => {
   const { slides, options } = props;
   const [emblaRef, emblaApi] = useEmblaCarousel(options);
   const [selected, setSelected] = useState(null);
   const [imgLoaded, setImgLoaded] = useState(false);
-
+  const navigate = useNavigate();
   const {
     prevBtnDisabled,
     nextBtnDisabled,
@@ -21,6 +22,10 @@ const EmblaCarousel = (props) => {
   const handleClick = (id, index) => {
     setSelected(slides.find((slide) => slide._id === id));
     // navigate('/event/' + id)
+  };
+
+  const handleClickAction = (id) => {
+    navigate('/event/' + id)
   };
 
   return (
@@ -50,7 +55,7 @@ const EmblaCarousel = (props) => {
                 layoutId={`card-${event._id}`}
                 onClick={() => handleClick(event._id, index)}
               >
-                <div className="relative w-[350px] h-[400px] rounded-2xl overflow-hidden cursor-pointer border-2">
+                <div className="relative w-[350px] h-[400px] rounded-2xl overflow-hidden cursor-pointer border-2 mx-auto">
                   {/* Skeleton Loader */}
                   {!imgLoaded && (
                     <div className="absolute top-0 left-0 w-full h-[300px] bg-gray-200 animate-pulse rounded-2xl" />
@@ -122,8 +127,8 @@ const EmblaCarousel = (props) => {
                   </button>
                   <div className="flex justify-end w-full">
                     <button
-                      onClick={() => handleClickAction(selected.id)}
-                      className=" primary-bg rounded-md px-4 py-1 uppercase flex gap-2 items-center text-[12px] justify-center font-semibold text-white transition-all ease-in-out hover:bg-orange-400 "
+                      onClick={() => handleClickAction(selected._id)}
+                      className=" primary-bg rounded-md px-4 py-1 uppercase flex gap-2 items-center text-[12px] justify-center font-semibold text-white transition-all ease-in-out hover:bg-emerald-400 "
                     >
                       open
                       <ChevronsRight className="w-4" />

@@ -10,6 +10,7 @@ import SingleEvent from "@/pages/SingleEvent";
 import { GuestLayout } from "@/layout";
 
 import AdminLayout from "@/layout/adminLayout";
+import AdminFeedback from "@/pages/admin/feedback";
 import Dashboard from "@/pages/admin/dashboard";
 import Teams from "./pages/admin/teams";
 import Events from "./pages/admin/events";
@@ -72,6 +73,8 @@ const router = createBrowserRouter([
         path: "reports",
         element: <AdminReports />,
       },
+      { path: "feedback", element: <AdminFeedback /> },
+
     ],
   },
   {

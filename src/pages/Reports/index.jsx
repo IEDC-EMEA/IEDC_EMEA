@@ -32,45 +32,46 @@ const Reports = () => {
   }, []);
 
   const fetchReports = async () => {
-    // try {
-      setLoading(false);
+    try {
+      setLoading(true);
       setError(null);
 
-      // const { data, error } = await supabase
-      //   .from("reports")
-      //   .select("*")
-      //   .order("report_date", { ascending: false });
-      const data = [
-        {
-          id: 1,
-          title: "Annual Report 2023",
-          report_date: "2023-12-31",
-          link: "https://example.com/reports/annual-2023.pdf",
-        },
-        {
-          id: 2,
-          title: "testing",
-          report_date: "2005-11-20",
-          link: "testing"
-        },
-        {
-          id: 2,
-          title: "testing",
-          report_date: "2005-11-20",
-          link: "testing"
-        },
-      ]
-      // if (error) {
-      //   throw error;
-      // }
+      const { data, error } = await supabase
+        .from("reports")
+        .select("*")
+        .order("report_date", { ascending: false });
+      // const data = [
+      //   {
+      //     id: 1,
+      //     title: "Annual Report 2023",
+      //     report_date: "2023-12-31",
+      //     link: "https://example.com/reports/annual-2023.pdf",
+      //   },
+      //   {
+      //     id: 2,
+      //     title: "testing",
+      //     report_date: "2005-11-20",
+      //     link: "testing"
+      //   },
+      //   {
+      //     id: 2,
+      //     title: "testing",
+      //     report_date: "2005-11-20",
+      //     link: "testing"
+      //   },
+      // ]
+      console.log("Fetched reports:", data);
+      if (error) {
+        throw error;
+      }
 
       setReports(data || []);
-    // } catch (err) {
-    //   console.error("Error fetching reports:", err);
-    //   setError("Failed to load reports. Please try again later.");
-    // } finally {
-    //   setLoading(false);
-    // }
+    } catch (err) {
+      console.error("Error fetching reports:", err);
+      setError("Failed to load reports. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const formatDate = (dateString) => {
@@ -89,6 +90,27 @@ const Reports = () => {
   };
 
   const isMobile = window.innerWidth < 768;
+
+  const handleView = (link) => () => {
+    if (link) {
+      window.open(link, "_blank");
+    } else {
+      alert("No link available for this report.");
+    }
+  }
+
+  const handleDownload = (link) => () => {
+    if (link) {
+      const anchor = document.createElement("a");
+      anchor.href = link;
+      anchor.download = link.split("/").pop();
+      document.body.appendChild(anchor);
+      anchor.click();
+      document.body.removeChild(anchor);
+    } else {
+      alert("No link available for this report.");
+    }
+  }
 
   if (loading) {
     return (
@@ -113,6 +135,8 @@ const Reports = () => {
     );
   }
 
+
+
   return (
     <div>
       {/* Reports Grid Section */}
@@ -123,6 +147,13 @@ const Reports = () => {
         viewport={{ once: true, amount: isMobile ? 0.05 : 0.1 }}
         className="py-8 px-4 md:px-6"
       >
+         <div className="px-2 md:px-6 mb-2">
+          <h2 className="font-semibold text-[20px] sm:text-[24px]">IEDC Reports</h2>
+          <p className="text-gray-400">
+              {/* i need a short description here around 50 characters max*/}
+              Explore our comprehensive reports showcasing IEDC's impact, growth, and future plans. Dive into insights, success stories, and strategic initiatives that drive our mission forward.
+          </p>
+        </div>
         {/* Reports Grid */}
         {reports.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-[1200px] mx-auto">
@@ -153,10 +184,10 @@ const Reports = () => {
                   </p>
                 </div>
                 <div className="flex justify-between px-4 py-3 gap-4">
-                  <span className="primary-color flex items-center justify-center rounded-full p-3 border-[0.01px] border-emerald-100 cursor-pointer hover:bg-emerald-600 hover:text-white transition-colors">
+                  <span onClick={handleView(report.link)} className="primary-color flex items-center justify-center rounded-full p-3 border-[0.01px] border-emerald-100 cursor-pointer hover:bg-emerald-600 hover:text-white transition-colors">
                     <Eye className="" />
                   </span>
-                  <span className="primary-bg flex items-center justify-center border rounded-full p-3 text-white cursor-pointer hover:border-[0.01px] hover:border-emerald-100 hover:bg-white hover:text-emerald-600 transition-all ease-in-out">
+                  <span onClick={handleDownload(report.link)} className="primary-bg flex items-center justify-center border rounded-full p-3 text-white cursor-pointer hover:border-[0.01px] hover:border-emerald-100 hover:bg-white hover:text-emerald-600 transition-all ease-in-out">
                     <FileDown />
                   </span>
                 </div>

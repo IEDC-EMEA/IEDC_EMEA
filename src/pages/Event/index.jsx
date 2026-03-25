@@ -118,7 +118,7 @@ const Event = () => {
         </div>
         
         {events.length > 0 ? (
-          <div className="flex-grow w-full mx-0 md:mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="flex-grow w-full mx-0 md:mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {events.map((event, index) => (
               <motion.div
                 key={event.id}

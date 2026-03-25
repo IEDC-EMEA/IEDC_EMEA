@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
+
 export const usePrevNextButtons = (emblaApi) => {
   const [prevBtnDisabled, setPrevBtnDisabled] = useState(true);
   const [nextBtnDisabled, setNextBtnDisabled] = useState(true);
@@ -44,13 +45,18 @@ export const PrevButton = (props) => {
         disabled ? " embla__button--disabled" : "",
       )}
       type="button"
+      disabled={disabled}
       {...restProps}
     >
-         <span
-             className=" z-10 primary-bg rounded-full p-2  cursor-pointer hover:bg-emerald-600 transition-colors duration-300"
-           >
-             <ArrowLeft color="white" />
-           </span>
+      <span
+        className={`z-10 rounded-full p-2 transition-colors duration-300 ${
+          disabled
+            ? "bg-gray-300 cursor-not-allowed"
+            : "primary-bg cursor-pointer hover:bg-emerald-600"
+        }`}
+      >
+        <ArrowLeft color="white" />
+      </span>
     </button>
   );
 };
@@ -64,14 +70,18 @@ export const NextButton = (props) => {
         disabled ? " embla__button--disabled" : "",
       )}
       type="button"
+      disabled={disabled}
       {...restProps}
     >
-             <span
-                  className=" z-10 primary-bg rounded-full p-2 cursor-pointer hover:bg-emerald-600 transition-colors duration-300"
-                >
-                  <ArrowRight color="white" />
-                </span>
-
+      <span
+        className={`z-10 rounded-full p-2 transition-colors duration-300 ${
+          disabled
+            ? "bg-gray-300 cursor-not-allowed"
+            : "primary-bg cursor-pointer hover:bg-emerald-600"
+        }`}
+      >
+        <ArrowRight color="white" />
+      </span>
     </button>
   );
 };

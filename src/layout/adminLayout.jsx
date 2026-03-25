@@ -118,6 +118,11 @@ function AdminLayout() {
       name: "Entrepreneurs",
       icon: <Users className="h-5 w-5" />,
       route: "/dashboard/entrepreneurs",
+    },
+    {
+      name: "Feedback",
+      icon: <Users className="h-5 w-5" />,
+      route: "/dashboard/feedback",
     }
   ];
 

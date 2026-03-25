@@ -7,12 +7,12 @@ import NodelOfficer from "./nodel.jpg";
 const Team = () => {
   const navigate = useNavigate();
   const teamMembers = [
-    {
-      name: "Muhammed Faisal T",
-      role: "Nodal Officer",
-      image: NodelOfficer,
-      designation: "Faculty (commerce)",
-    },
+    // {
+    //   name: "Muhammed Faisal T",
+    //   role: "Nodal Officer",
+    //   image: NodelOfficer,
+    //   designation: "Faculty (commerce)",
+    // },
     {
       name: "Mohammed Sinan",
       role: "CEO",
@@ -69,9 +69,9 @@ const Team = () => {
   ];
 
   return (
-    <div className="flex items-center gap-6 flex-col text-center p-8  rounded-2xl max-w-[1200px] w-full mx-auto">
-      <div className="flex justify-between items-center gap-4  w-full">
-        <div className="flex flex-col items-start gap-1 py-10">
+    <div className="flex items-center gap-6 flex-col text-center p-4 sm:p-8  rounded-2xl max-w-[1200px] w-full mx-auto">
+      <div className="flex justify-between items-center sm:gap-4  w-full flex-col sm:flex-row">
+        <div className="flex flex-col items-start gap-1 py-4 sm:py-10">
           <h1 className="text-2xl font-semibold uppercase">TEAM IEDC EMEA</h1>
           <p className="secondary-color">Our Members</p>
         </div>
@@ -97,8 +97,7 @@ const Team = () => {
               />
             </div>
             <div className="flex flex-col items-center">
-              <p className="">{member.role}</p>
-              <p className="text-xl font-semibold primary-color">
+              <p className="text-sm sm:text-xl font-semibold primary-color">
                 {member.name}
               </p>
               <p className="text-sm secondary-color">{member.designation}</p>
@@ -108,27 +107,41 @@ const Team = () => {
       </div>
 
       {/* other without first 2 persons */}
-      <div className="flex items-center justify-center w-full flex-wrap gap-4">
+      <div className="grid grid-cols-2 sm:flex items-center justify-center w-full flex-wrap gap-4 ">
         {teamMembers.slice(2).map((member, index) => (
-          <div
-            key={index}
-            className="flex flex-col items-center gap-4 p-6  max-w-[400px]"
-          >
-            <div className="w-36 h-36 rounded-full overflow-hidden border-2 border-emerald-500 shadow-md bg-white">
-              <img
-                src={member.image}
-                alt={member.name}
-                className="w-full h-full object-cover object-center grayscale contrast-110 brightness-95 transition-transform duration-500 ease-out hover:scale-110"
-              />
-            </div>
-            <div className="flex flex-col items-center">
-              <p className="">{member.role}</p>
-              <p className="text-xl font-semibold primary-color">
-                {member.name}
-              </p>
-              <p className="text-sm secondary-color">{member.designation}</p>
-            </div>
-          </div>
+         <div
+  key={index}
+  className="flex flex-col items-center justify-start gap-3 p-4 h-full w-full max-w-[200px]"
+>
+  {/* Image */}
+  <div className="w-36 h-36 rounded-full overflow-hidden border-2 border-emerald-500 shadow-md bg-white ">
+    <img
+      src={member.image}
+      alt={member.name}
+      className="w-full h-full object-cover object-center grayscale transition-transform duration-500 hover:scale-110"
+    />
+  </div>
+
+  {/* Text block (THIS IS THE IMPORTANT FIX) */}
+  <div className="flex flex-col items-center text-center w-full">
+    
+    {/* role */}
+    <p className="text-[10px] sm:text-xs h-4 leading-4 truncate">
+      {member.role || "\u00A0"}
+    </p>
+
+    {/* name */}
+    <p className="text-sm sm:text-lg font-semibold primary-color leading-5 sm:min-h-12 overflow-hidden">
+      {member.name}
+    </p>
+
+    {/* designation */}
+    <p className="text-xs secondary-color h-4 leading-4 truncate">
+      {member.designation || "\u00A0"}
+    </p>
+
+  </div>
+</div>
         ))}
       </div>
     </div>
